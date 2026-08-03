@@ -1,0 +1,19 @@
+{
+  "name": "Future",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Create the Future you want to see.",
+  "scripts": {
+    "dev": "vite",
+    "dev:api": "node server/index.js",
+    "build": "vite build",
+    "start": "node server/index.js",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^5.0.3",
+    "svelte": "^5.19.0",
+    "vite": "^6.0.7"
+  }
+}

@@ -1,0 +1,383 @@
+@import url('https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;1,300&family=Mulish:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap');
+
+/* ═══════════════════════════════════════════════════════════════════
+   FUTURE — Frutiger Aero token system.
+
+   The page is a live sky wallpaper with smoked-glass windows floating on
+   it. Every colour is a registered custom property, so the whole page can
+   cross-fade between "worlds" (see [data-world]) — gradients included.
+   Registered props are the only way to animate a colour inside a gradient.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* sky */
+@property --sky-hi   { syntax: '<color>'; inherits: true; initial-value: #2e93dd; }
+@property --sky-mid  { syntax: '<color>'; inherits: true; initial-value: #93d9f7; }
+@property --sky-lo   { syntax: '<color>'; inherits: true; initial-value: #dcf3c6; }
+@property --sun      { syntax: '<color>'; inherits: true; initial-value: #fffbe0; }
+
+/* accents */
+@property --accent   { syntax: '<color>'; inherits: true; initial-value: #6fe0a8; }
+@property --aqua     { syntax: '<color>'; inherits: true; initial-value: #34b6ea; }
+@property --aqua-lt  { syntax: '<color>'; inherits: true; initial-value: #b6ecff; }
+@property --aqua-dk  { syntax: '<color>'; inherits: true; initial-value: #0a4f86; }
+@property --lime     { syntax: '<color>'; inherits: true; initial-value: #b4e565; }
+@property --grass    { syntax: '<color>'; inherits: true; initial-value: #4aa832; }
+@property --grass-dk { syntax: '<color>'; inherits: true; initial-value: #1d6b2b; }
+
+/* smoked glass — four stops, straight out of the era's chrome */
+@property --pane-1   { syntax: '<color>'; inherits: true; initial-value: rgba(101, 110, 116, 0.7); }
+@property --pane-2   { syntax: '<color>'; inherits: true; initial-value: rgba(18, 22, 26, 0.78); }
+@property --pane-3   { syntax: '<color>'; inherits: true; initial-value: rgba(8, 12, 16, 0.8); }
+@property --pane-4   { syntax: '<color>'; inherits: true; initial-value: rgba(58, 64, 68, 0.7); }
+
+/* the green glossy capsule */
+@property --pill-hi  { syntax: '<color>'; inherits: true; initial-value: #d3f591; }
+@property --pill-lo  { syntax: '<color>'; inherits: true; initial-value: #3e9a2a; }
+@property --pill-ln  { syntax: '<color>'; inherits: true; initial-value: #2a6b1a; }
+@property --pill-tx  { syntax: '<color>'; inherits: true; initial-value: #12360a; }
+
+:root {
+  --sans: 'Mulish', 'Segoe UI', system-ui, sans-serif;
+  --display: 'Titillium Web', 'Segoe UI', system-ui, sans-serif;
+  --mono: 'Share Tech Mono', ui-monospace, monospace;
+
+  /* white type on smoked glass, at three strengths */
+  --ink: rgba(255, 255, 255, 0.94);
+  --ink-2: rgba(255, 255, 255, 0.76);
+  --ink-3: rgba(255, 255, 255, 0.52);
+  /* the era's engraved type shadow, cast downward — an upward offset eats
+     thin glyphs like em dashes at normal sizes */
+  --etch: 0 1px 2px rgba(0, 0, 0, 0.55);
+
+  --maxw: 1180px;
+  --pad: clamp(16px, 4vw, 40px);
+
+  --r-lg: 14px;
+  --r-md: 10px;
+  --r-sm: 7px;
+  --r-pill: 999px;
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* the world cross-fade */
+  transition:
+    --sky-hi 850ms var(--ease), --sky-mid 850ms var(--ease), --sky-lo 850ms var(--ease),
+    --sun 850ms var(--ease), --accent 850ms var(--ease),
+    --aqua 850ms var(--ease), --aqua-lt 850ms var(--ease), --aqua-dk 850ms var(--ease),
+    --lime 850ms var(--ease), --grass 850ms var(--ease), --grass-dk 850ms var(--ease),
+    --pane-1 850ms var(--ease), --pane-2 850ms var(--ease),
+    --pane-3 850ms var(--ease), --pane-4 850ms var(--ease),
+    --pill-hi 850ms var(--ease), --pill-lo 850ms var(--ease),
+    --pill-ln 850ms var(--ease), --pill-tx 850ms var(--ease);
+}
+
+/* ── WORLD: neon rain (cyberpunk) ───────────────────────────────── */
+:root[data-world='neon'] {
+  --sky-hi: #170f3c;
+  --sky-mid: #3d1c6b;
+  --sky-lo: #0a0618;
+  --sun: #ff7ae0;
+
+  --accent: #7cf0ff;
+  --aqua: #3ce7ff;
+  --aqua-lt: #d3fbff;
+  --aqua-dk: #133e8f;
+  --lime: #ff6fe0;
+  --grass: #1a8ea0;
+  --grass-dk: #06283a;
+
+  --pane-1: rgba(122, 106, 190, 0.42);
+  --pane-2: rgba(18, 12, 40, 0.78);
+  --pane-3: rgba(6, 4, 16, 0.78);
+  --pane-4: rgba(64, 52, 104, 0.6);
+
+  --pill-hi: #9ef8ff;
+  --pill-lo: #b32ec6;
+  --pill-ln: #ff8ae8;
+  --pill-tx: #0b0320;
+}
+
+/* ── WORLD: reclaimed (post-collapse solar) ─────────────────────── */
+:root[data-world='rust'] {
+  --sky-hi: #b8672a;
+  --sky-mid: #f0bc7c;
+  --sky-lo: #f9e7bb;
+  --sun: #fff3c0;
+
+  --accent: #ffc46b;
+  --aqua: #d98a3c;
+  --aqua-lt: #ffdfae;
+  --aqua-dk: #6d3216;
+  --lime: #dcd06f;
+  --grass: #8a9540;
+  --grass-dk: #414a1d;
+
+  --pane-1: rgba(128, 106, 84, 0.66);
+  --pane-2: rgba(32, 22, 14, 0.74);
+  --pane-3: rgba(14, 9, 5, 0.74);
+  --pane-4: rgba(74, 58, 42, 0.68);
+
+  --pill-hi: #ffdc95;
+  --pill-lo: #b8632c;
+  --pill-ln: #7d3d15;
+  --pill-tx: #351806;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  background:
+    radial-gradient(120% 74% at 76% -6%, var(--sun) 0%, transparent 44%),
+    linear-gradient(178deg, var(--sky-hi) 0%, var(--sky-mid) 46%, var(--sky-lo) 100%);
+  background-attachment: fixed;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+img, svg { display: block; max-width: 100%; }
+
+::selection { background: var(--accent); color: rgba(0, 20, 12, 0.9); }
+
+/* Display type: light, wide, white, faintly engraved — the era's house style */
+h1, h2, h3, h4 {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  text-shadow: var(--etch);
+}
+
+p { text-shadow: var(--etch); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding-inline: var(--pad);
+}
+
+/* ── LABELS / DATA ──────────────────────────────────────────────── */
+.label {
+  font-family: var(--display);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--ink-3);
+  text-shadow: var(--etch);
+}
+
+.mono { font-family: var(--mono); letter-spacing: 0.04em; }
+
+.hud {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  text-shadow: var(--etch);
+}
+
+/* ── SMOKED GLASS ───────────────────────────────────────────────────
+   Two tiers, same as the era's chrome: `bar` has the hard specular
+   midline (headers, capsules, small strips), `pane` runs soft top to
+   bottom so long blocks of text stay readable.                        */
+.bar,
+.pane {
+  position: relative;
+  border-radius: var(--r-lg);
+  backdrop-filter: blur(6px) saturate(1.1);
+  -webkit-backdrop-filter: blur(6px) saturate(1.1);
+}
+
+.bar {
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 49.6%, rgba(255, 255, 255, 0) 50%),
+    linear-gradient(180deg, var(--pane-1) 0%, var(--pane-2) 50%, var(--pane-3) 50.1%, var(--pane-4) 100%);
+  box-shadow:
+    0 7px 12px rgba(0, 0, 0, 0.3),
+    inset 0 2px 1px rgba(255, 255, 255, 0.3),
+    inset 0 -2px 1px rgba(0, 0, 0, 0.4);
+}
+
+.pane {
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.02) 22%, rgba(255, 255, 255, 0) 44%),
+    linear-gradient(180deg, var(--pane-1) 0%, var(--pane-2) 34%, var(--pane-3) 100%);
+  box-shadow:
+    0 10px 16px rgba(0, 0, 0, 0.3),
+    inset 0 2px 1px rgba(255, 255, 255, 0.3),
+    inset 0 -2px 1px rgba(0, 0, 0, 0.4);
+}
+
+/* a window = title bar welded to a content pane */
+.window { display: grid; }
+.window > .bar {
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  z-index: 1;
+}
+.window > .pane {
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
+  box-shadow:
+    0 10px 16px rgba(0, 0, 0, 0.3),
+    inset 0 -2px 1px rgba(0, 0, 0, 0.4);
+}
+
+/* 2px etched separator, as seen between every control in 2008 */
+.sep {
+  width: 2px;
+  align-self: stretch;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0.22) 36%, rgba(255, 255, 255, 0.36) 100%);
+  box-shadow: -1px 0 1px rgba(0, 0, 0, 0.4);
+  opacity: 0.9;
+}
+
+/* ── BUTTONS ────────────────────────────────────────────────────────
+   Skeuomorphic capsule: hard midline gloss, bottom rim, and a specular
+   streak that sweeps across on hover.                                  */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  isolation: isolate;
+  padding: 14px 30px;
+  border: 1px solid var(--pill-ln);
+  border-radius: var(--r-pill);
+  font-family: var(--display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--pill-tx);
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0.2) 49.6%, rgba(255, 255, 255, 0) 50%),
+    linear-gradient(180deg, var(--pill-hi) 0%, var(--pill-lo) 100%);
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -2px 2px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+  transition: transform 0.22s var(--ease), box-shadow 0.22s var(--ease), filter 0.22s var(--ease);
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  top: -60%;
+  left: -30%;
+  width: 34%;
+  height: 220%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  transform: translateX(-140%) rotate(14deg);
+  transition: transform 0.7s var(--ease);
+  pointer-events: none;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  filter: saturate(1.1) brightness(1.05);
+  box-shadow:
+    0 14px 22px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -2px 2px rgba(0, 0, 0, 0.26);
+}
+
+.btn:hover::after { transform: translateX(420%) rotate(14deg); }
+.btn:active { transform: translateY(1px) scale(0.99); }
+
+/* smoked-glass twin, for secondary actions */
+.btn-glass {
+  border-color: rgba(255, 255, 255, 0.28);
+  color: var(--ink);
+  text-shadow: var(--etch);
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 49.6%, rgba(255, 255, 255, 0) 50%),
+    linear-gradient(180deg, var(--pane-1) 0%, var(--pane-2) 50%, var(--pane-3) 50.1%, var(--pane-4) 100%);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.btn-sm { padding: 10px 20px; font-size: 0.92rem; }
+
+.btn:disabled {
+  filter: grayscale(0.6);
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* text link with a sliding underline */
+.btn-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 2px;
+  font-family: var(--display);
+  font-size: 0.96rem;
+  font-weight: 600;
+  color: var(--ink);
+  text-shadow: var(--etch);
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 2px;
+  transition: background-size 0.32s var(--ease), color 0.2s;
+}
+
+.btn-text:hover { background-size: 100% 2px; color: var(--accent); }
+
+/* ── SCROLL REVEAL ──────────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+}
+.reveal.in { opacity: 1; transform: none; }
+
+/* ── SCROLLBAR ──────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 13px; }
+::-webkit-scrollbar-track { background: rgba(8, 12, 16, 0.35); }
+::-webkit-scrollbar-thumb {
+  border-radius: var(--r-pill);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.3));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto;
+  }
+  .reveal { opacity: 1; transform: none; }
+}
+
+@media (max-width: 520px) {
+  body { font-size: 16px; }
+}
