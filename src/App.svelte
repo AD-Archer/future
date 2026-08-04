@@ -82,7 +82,7 @@
     if (typeof api.program?.hoursShipped === 'number') {
       out.push(`${api.program.hoursShipped} hours shipped`)
     }
-    if (out.length) out.push('build the future you want to see')
+    if (out.length) out.push('build the future of your childhood')
     return out
   })
 
@@ -258,10 +258,11 @@
       </div>
 
       <div class="hero-copy">
-        <h1>Build the future<br />you want to see.</h1>
+        <h1>Build the future<br />of your childhood.</h1>
         <p class="lede">
-          Not a prediction, a preference. Pick the world you would rather live in,
-          build a piece of its technology, and we ship you the hardware to keep going.
+          The one you were promised as a kid, or the one you still want. The future of
+          1920, the future of 2010, the future being imagined right now: pick any vision
+          of it and build a real piece of it. We ship you the hardware to keep going.
         </p>
 
         <div class="cta-row">
@@ -278,7 +279,7 @@
       <header class="bar sec-bar">
         <h2>Three ways in</h2>
         <span class="sep" aria-hidden="true"></span>
-        <p class="sec-sub">Pick one, or do all three. Whatever you build has to come from the world you chose.</p>
+        <p class="sec-sub">Pick one, or do all three. It only has to look like it came from somebody's future.</p>
       </header>
 
       <div class="pane tracks">

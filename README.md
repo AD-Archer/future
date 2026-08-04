@@ -1,8 +1,9 @@
 # FUTURE 🌐
 
-A Hack Club **You Ship, We Ship** landing page. Pick the world you would rather live
-in, build a piece of its technology, ship it open-source, and spend what you earn in the
-shop. Frutiger Aero: live sky, smoked glass, glossy everything.
+A Hack Club **You Ship, We Ship** landing page: build the future of your childhood.
+Any vision counts — the future of 1920, the future of 2010, or the one being imagined
+right now. Build a real piece of it, ship it open-source, and spend your logged hours in
+the shop. Frutiger Aero: live sky, smoked glass, glossy everything.
 
 Static **Svelte 5 + Vite** site, run with **`just`**. Onboarding, the shop and all
 program content live in **Stern** — this repo is the front page.

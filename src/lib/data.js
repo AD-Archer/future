@@ -66,7 +66,7 @@ export const TRACKS = [
   {
     icon: 'signal',
     title: 'A postcard from there',
-    body: 'Interfaces, holograms, weird hardware, impossible dashboards. If it looks like it arrived from the world you picked, it counts.'
+    body: 'Interfaces, holograms, weird hardware, impossible dashboards. Retro-futurist, Y2K, or straight out of next year: if it looks like it arrived from a future, it counts.'
   }
 ]
 
@@ -74,7 +74,7 @@ export const STEPS = [
   {
     n: '01',
     title: 'Get onboarded',
-    body: 'Sign up on Stern, pick the world you are building from, and read the welcome page. It is free and takes a few minutes.'
+    body: 'Sign up on Stern, pick the future you are building from, and read the welcome page. It is free and takes a few minutes.'
   },
   {
     n: '02',
