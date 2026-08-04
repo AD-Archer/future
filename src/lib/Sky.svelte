@@ -99,12 +99,14 @@
         }
       }
 
+      // kept small and sparse: anything bigger reads as a smudge when it
+      // drifts behind a smoked-glass pane
       bubbles = []
-      for (let i = 0; i < 30; i++) {
+      for (let i = 0; i < 16; i++) {
         bubbles.push({
           x: Math.random(),
           y: Math.random(),
-          r: rnd(2.5, 11),
+          r: rnd(2, 6),
           vy: rnd(0.012, 0.045),
           wob: Math.random() * Math.PI * 2,
           wobs: rnd(0.4, 1.1),

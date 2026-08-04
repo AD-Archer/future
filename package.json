@@ -6,9 +6,7 @@
   "description": "Create the Future you want to see.",
   "scripts": {
     "dev": "vite",
-    "dev:api": "node server/index.js",
     "build": "vite build",
-    "start": "node server/index.js",
     "preview": "vite preview"
   },
   "devDependencies": {

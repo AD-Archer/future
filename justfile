@@ -1,4 +1,4 @@
-# run `just` to see all recipes
+# FUTURE — run `just` to see all recipes
 
 set shell := ["bash", "-cu"]
 
@@ -6,27 +6,23 @@ set shell := ["bash", "-cu"]
 default:
     @just --list
 
-# install dependencies (open the portal)
+# install dependencies
 install:
     npm install
 
-# run the dev server (fire up the garage)
+# run the dev server
 dev: _ensure-deps
-    npm run dev:api & npm run dev
+    npm run dev
 
-# build for production (compress into a microverse)
+# build for production (static site in dist/)
 build: _ensure-deps
     npm run build
-
-# run the built site and API together
-start: build
-    npm run start
 
 # preview the production build
 preview: build
     npm run preview
 
-# nuke node_modules + build output (schwifty reset)
+# nuke node_modules + build output
 clean:
     rm -rf node_modules dist .vite
 

@@ -2,10 +2,12 @@
   import Sky from './lib/Sky.svelte'
   import Orb from './lib/Orb.svelte'
   import Droplets from './lib/Droplets.svelte'
+  import Ticker from './lib/Ticker.svelte'
   import Reveal from './lib/Reveal.svelte'
   import Rules from './lib/Rules.svelte'
   import StatusPage from './lib/StatusPage.svelte'
-  import { CONFIG, WORLDS, TRACKS, STEPS, REWARDS, RULES, FAQ } from './lib/data.js'
+  import { loadContent } from './lib/api/stern.js'
+  import { CONFIG, WORLDS, TRACKS, STEPS, RULES } from './lib/data.js'
 
   let openFaq = $state(0)
   let worldIndex = $state(0)
@@ -13,11 +15,102 @@
   let runtimeError = $state('')
   let stage = $state()
 
+  // everything that changes often lives in Stern, not in this repo
+  let api = $state({
+    loading: true,
+    failures: [],
+    program: null,
+    currency: null,
+    prizes: [],
+    rules: null,
+    faq: [],
+    news: [],
+    events: []
+  })
+
   let world = $derived(WORLDS[worldIndex])
-  const maxCost = Math.max(...REWARDS.map((r) => r.cost))
+  let coinName = $derived(api.currency?.name ?? CONFIG.currency)
+
+  // how long the program runs, straight off the schedule in the program payload
+  const DAY = 86400000
+  // Read in UTC: the schedule lands on midnight UTC, so formatting it locally
+  // would shift the date back a day for anyone west of Greenwich. Months are
+  // spelled out here rather than via Intl, whose "short" September is "Sept".
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const fmtDate = (d) => `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`
+
+  let run = $derived.by(() => {
+    const sch = api.program?.schedule
+    if (!sch?.startsAt || !sch?.endsAt) return null
+
+    const start = new Date(sch.startsAt)
+    const end = new Date(sch.endsAt)
+    const now = new Date()
+    const total = Math.max(1, Math.round((end - start) / DAY))
+
+    return {
+      start,
+      end,
+      total,
+      day: Math.min(total, Math.max(1, Math.floor((now - start) / DAY) + 1)),
+      left: Math.max(0, Math.ceil((end - now) / DAY)),
+      until: Math.max(0, Math.ceil((start - now) / DAY)),
+      started: sch.hasStarted,
+      ended: sch.hasEnded
+    }
+  })
+
+  let ticker = $derived.by(() => {
+    const out = []
+    if (run) {
+      const window = `runs ${fmtDate(run.start)} to ${fmtDate(run.end)}`
+      if (run.ended) {
+        out.push('this run has ended', `it ran ${run.total} days`, window)
+      } else if (run.started) {
+        out.push(
+          `day ${run.day} of ${run.total}`,
+          run.left === 0 ? 'closes today' : `${run.left} day${run.left === 1 ? '' : 's'} left`,
+          window
+        )
+      } else {
+        out.push(
+          run.until === 0 ? 'opens today' : `opens in ${run.until} day${run.until === 1 ? '' : 's'}`,
+          window
+        )
+      }
+    }
+    if (typeof api.program?.hoursShipped === 'number') {
+      out.push(`${api.program.hoursShipped} hours shipped`)
+    }
+    if (out.length) out.push('build the future you want to see')
+    return out
+  })
 
   const toggle = (i) => (openFaq = openFaq === i ? -1 : i)
   const validPaths = new Set(['/', '/index.html', '/404', '/error'])
+
+  // short enough never to wrap in a card column; the label supplies the unit
+  const hoursLabel = (h) => (h ? `${h} hrs` : 'none')
+  // priceType decides the unit. These prizes are priced in *hours*, not the
+  // program currency, so never assume coins just because a price exists.
+  function priceLabel(p) {
+    if (p.priceType === 'hours') return `${p.price} hrs`
+    if (p.priceType === 'currency') return `${p.price} ${coinName}`
+    if (p.priceType === 'free' || !p.price) return 'Free'
+    return `${p.price} ${p.priceType ?? ''}`.trim()
+  }
+
+  // a prize whose imageUrl 404s falls back to the plate, not a broken frame
+  let brokenImages = $state(new Set())
+  const markBroken = (id) => (brokenImages = new Set(brokenImages).add(id))
+
+  function stockLabel(p) {
+    if (p.stock === null || p.stock === undefined) return ''
+    return p.stock > 0 ? `${p.stock} left` : 'out of stock'
+  }
+
+  const noteLine = (p) =>
+    [stockLabel(p), p.estimatedShip ? `ships ${p.estimatedShip}` : ''].filter(Boolean).join(' · ')
 
   function readLocation() {
     return { pathname: window.location.pathname }
@@ -55,6 +148,12 @@
   // paint the picked world onto the document so every token cross-fades
   $effect(() => {
     document.documentElement.dataset.world = world.id
+  })
+
+  $effect(() => {
+    loadContent()
+      .then((c) => (api = { ...c, loading: false }))
+      .catch((err) => (api = { ...api, loading: false, failures: [err.message] }))
   })
 
   $effect(() => {
@@ -109,7 +208,10 @@
 
 <Sky atmos={world.atmos} />
 
-<!-- Hack Club flag, hung from the top-left corner -->
+<!-- how long this run lasts, on a loop, pinned across the top -->
+<Ticker items={ticker} header />
+
+<!-- Hack Club flag, hung from the top-left corner, over the header -->
 <a class="flag" href={CONFIG.flagUrl} target="_blank" rel="noopener" aria-label="Hack Club">
   <img src="/branding/flag-orpheus-top.svg" alt="Hack Club" width="150" height="85" />
 </a>
@@ -120,24 +222,17 @@
     <header class="bar hero-bar">
       <span class="brand"><span class="brand-dot" aria-hidden="true"></span>{CONFIG.name}<sup>®</sup></span>
       <span class="sep" aria-hidden="true"></span>
-      <span class="hero-kicker label">Hack Club · You Ship, We Ship By Archer</span>
+      <span class="hero-kicker label">Hack Club · You Ship, We Ship by Archer</span>
       <a class="hero-bar-cta btn-text" href={CONFIG.slackUrl}>Slack →</a>
     </header>
 
     <div class="pane hero-pane" bind:this={stage}>
       <Droplets count={9} seed={4} opacity={0.55} />
 
-      <div class="hero-figure" aria-hidden="true">
-        <Orb size={390} />
-      </div>
+      <div class="hero-figure">
+        <div class="orb-wrap" aria-hidden="true"><Orb size={330} /></div>
 
-      <div class="hero-copy">
-        <h1>Build the future<br />you want to see.</h1>
-        <p class="lede">
-          Not a prediction a preference. Pick the world you would rather live in,
-          build a piece of its technology, and we ship you the hardware to keep going.
-        </p>
-
+        <!-- the world picker belongs to the globe, well clear of the buttons -->
         <div class="picker" style="--i:{worldIndex}">
           <span class="picker-label label">which future?</span>
           <div class="segment bar" role="radiogroup" aria-label="Pick a future">
@@ -156,13 +251,21 @@
             {/each}
           </div>
           {#key world.id}
-            <p class="world-tag"><em>{world.kicker}</em> {world.tag}</p>
+            <p class="world-tag"><em>{world.kicker}</em> · {world.tag}</p>
             <p class="hud world-hud">▸ {world.hud}</p>
           {/key}
         </div>
+      </div>
+
+      <div class="hero-copy">
+        <h1>Build the future<br />you want to see.</h1>
+        <p class="lede">
+          Not a prediction, a preference. Pick the world you would rather live in,
+          build a piece of its technology, and we ship you the hardware to keep going.
+        </p>
 
         <div class="cta-row">
-          <a href={CONFIG.signupUrl} class="btn">Start building</a>
+          <a href={CONFIG.welcomeUrl} class="btn">Get onboarded</a>
           <a href="#how" class="btn-text">Read the protocol →</a>
         </div>
       </div>
@@ -175,7 +278,7 @@
       <header class="bar sec-bar">
         <h2>Three ways in</h2>
         <span class="sep" aria-hidden="true"></span>
-        <p class="sec-sub">Pick one, or do all three whatever you build has to come from the world you chose.</p>
+        <p class="sec-sub">Pick one, or do all three. Whatever you build has to come from the world you chose.</p>
       </header>
 
       <div class="pane tracks">
@@ -222,38 +325,82 @@
             </li>
           {/each}
         </ol>
+        <a class="btn steps-cta" href={CONFIG.welcomeUrl}>Start at step one</a>
       </div>
     </section>
   </Reveal>
 
-  <!-- ───────────────────────── DROPS / SHOP ───────────────────────── -->
+  <!-- ───────────────────────── SHOP (live) ───────────────────────── -->
   <Reveal>
-    <section class="window" id="drops">
+    <section class="window" id="shop">
       <header class="bar sec-bar">
         <h2>The shop</h2>
         <span class="sep" aria-hidden="true"></span>
         <p class="sec-sub">
-          One tracked hour is one drop. Stack them up and spend them on real gear,
-          shipped anywhere we can post a parcel.
+          Priced in tracked hours, cheapest first. Ship enough and you pick something off
+          this list.
         </p>
+        <a class="sec-bar-cta btn-text" href={CONFIG.programUrl}>Full shop →</a>
       </header>
 
       <div class="pane shop">
-        <Droplets count={9} seed={21} opacity={0.4} />
-        <div class="shop-head label">
-          <span>part</span><span>item</span><span class="shop-note">spec</span><span class="shop-cost">cost</span>
-        </div>
-        {#each REWARDS as r}
-          <div class="shop-row">
-            <span class="mono shop-code">{r.code}</span>
-            <span class="shop-name">{r.name}</span>
-            <span class="shop-note">{r.note}</span>
-            <span class="shop-cost">
-              <span class="price">{r.cost}<svg class="drop-glyph" viewBox="0 0 24 32" aria-hidden="true"><path d="M12 1C12 1 3 14 3 21a9 9 0 0 0 18 0C21 14 12 1 12 1Z" /><ellipse cx="9" cy="20" rx="2.4" ry="3.4" class="drop-spec" /></svg></span>
-              <span class="meter" aria-hidden="true"><span style="width:{(r.cost / maxCost) * 100}%"></span></span>
-            </span>
-          </div>
-        {/each}
+        <Droplets count={8} seed={21} opacity={0.4} />
+
+        {#if api.loading}
+          <p class="msg">Loading the live shop…</p>
+        {:else if api.prizes.length}
+          <ul class="grid">
+            {#each api.prizes as p, i}
+              <li class="card" class:sold-out={p.stock === 0}>
+                <div class="thumb">
+                  {#if p.imageUrl && !brokenImages.has(p.id)}
+                    <!-- first row eager, so thumbnails are not blank on arrival -->
+                    <img
+                      src={p.imageUrl}
+                      alt={p.name}
+                      loading={i < 4 ? 'eager' : 'lazy'}
+                      decoding="async"
+                      onerror={() => markBroken(p.id)}
+                    />
+                  {:else}
+                    <!-- no photo on this item yet: a glossy plate, not a broken frame -->
+                    <span class="plate" aria-hidden="true">{p.name.trim().slice(0, 1)}</span>
+                  {/if}
+                  {#if p.isFeatured}<span class="ribbon label">featured</span>{/if}
+                </div>
+
+                <div class="card-body">
+                  <h3>{p.name}</h3>
+                  {#if p.description}<p class="card-desc">{p.description}</p>{/if}
+
+                  <dl class="card-stats">
+                    <div>
+                      <dt class="label">cost</dt>
+                      <dd class="price">{priceLabel(p)}</dd>
+                    </div>
+                    {#if p.minHoursRequired > 0}
+                      <div>
+                        <dt class="label">unlocks at</dt>
+                        <dd class="mono">{hoursLabel(p.minHoursRequired)}</dd>
+                      </div>
+                    {/if}
+                  </dl>
+
+
+                  <!-- always rendered, so every card's footer sits on the same line -->
+                  <p class="card-foot hud">{noteLine(p)}</p>
+
+                  <a class="btn btn-glass btn-sm card-cta" href={CONFIG.shopUrl}>View on website</a>
+                </div>
+              </li>
+            {/each}
+          </ul>
+        {:else}
+          <p class="msg">
+            No items are listed right now. The shop is filled in on Stern, so check
+            <a href={CONFIG.programUrl}>the program page</a> for what is live.
+          </p>
+        {/if}
       </div>
     </section>
   </Reveal>
@@ -261,31 +408,91 @@
   <!-- ───────────────────────── RULES ───────────────────────── -->
   <Reveal>
     <div id="rules">
-      <Rules label={RULES.label} title={RULES.title} intro={RULES.intro} items={RULES.items} />
+      <Rules
+        label={RULES.label}
+        title={RULES.title}
+        intro={RULES.intro}
+        items={RULES.items}
+        requirements={api.rules?.requirements}
+        aiPercent={api.rules?.ai?.maxPercent}
+      />
     </div>
   </Reveal>
 
-  <!-- ───────────────────────── FAQ ───────────────────────── -->
+  <!-- ───────────────────────── NEWS (live, hidden when empty) ─────────── -->
+  {#if api.news.length}
+    <Reveal>
+      <section class="window" id="news">
+        <header class="bar sec-bar">
+          <h2>Latest news</h2>
+          <span class="sep" aria-hidden="true"></span>
+          <p class="sec-sub">Announcements from the people running the program.</p>
+        </header>
+        <div class="pane feed">
+          {#each api.news as item}
+            <article class="entry">
+              {#if item.title}<h3>{item.title}</h3>{/if}
+              {#if item.publishedAt}<p class="hud">{new Date(item.publishedAt).toLocaleDateString()}</p>{/if}
+              {#if item.body || item.content}<p>{item.body || item.content}</p>{/if}
+            </article>
+          {/each}
+        </div>
+      </section>
+    </Reveal>
+  {/if}
+
+  <!-- ───────────────────────── EVENTS (live, hidden when empty) ───────── -->
+  {#if api.events.length}
+    <Reveal>
+      <section class="window" id="events">
+        <header class="bar sec-bar">
+          <h2>What's coming up</h2>
+          <span class="sep" aria-hidden="true"></span>
+          <p class="sec-sub">Still to come on the schedule.</p>
+        </header>
+        <div class="pane feed">
+          {#each api.events as ev}
+            <article class="entry">
+              {#if ev.name || ev.title}<h3>{ev.name || ev.title}</h3>{/if}
+              {#if ev.startsAt}<p class="hud">{new Date(ev.startsAt).toLocaleString()}</p>{/if}
+              {#if ev.description}<p>{ev.description}</p>{/if}
+            </article>
+          {/each}
+        </div>
+      </section>
+    </Reveal>
+  {/if}
+
+  <!-- ───────────────────────── FAQ (live) ───────────────────────── -->
   <Reveal>
     <section class="window" id="faq">
       <header class="bar sec-bar">
         <h2>Questions</h2>
         <span class="sep" aria-hidden="true"></span>
-        <p class="sec-sub">Anything missing? Ask in the Slack someone answers within the hour.</p>
+        <p class="sec-sub">Straight from the program. Anything missing, ask in the Slack.</p>
       </header>
 
       <div class="pane faq">
-        {#each FAQ as item, i}
-          <div class="qa" class:open={openFaq === i}>
-            <button class="qa-q" onclick={() => toggle(i)} aria-expanded={openFaq === i}>
-              <span class="qa-text">{item.q}</span>
-              <span class="qa-sign" aria-hidden="true">{openFaq === i ? '–' : '+'}</span>
-            </button>
-            {#if openFaq === i}
-              <p class="qa-a">{item.a}</p>
-            {/if}
-          </div>
-        {/each}
+        {#if api.loading}
+          <p class="msg">Loading questions…</p>
+        {:else if api.faq.length}
+          {#each api.faq as item, i}
+            <div class="qa" class:open={openFaq === i}>
+              <button class="qa-q" onclick={() => toggle(i)} aria-expanded={openFaq === i}>
+                <span class="qa-text">{item.question}</span>
+                <span class="qa-sign" aria-hidden="true">{openFaq === i ? '–' : '+'}</span>
+              </button>
+              {#if openFaq === i}
+                <p class="qa-a">{item.answer}</p>
+              {/if}
+            </div>
+          {/each}
+        {:else}
+          <p class="msg">
+            Questions could not be loaded. Ask in <a href={CONFIG.slackUrl}>the Slack</a> and
+            someone will answer.
+          </p>
+        {/if}
       </div>
     </section>
   </Reveal>
@@ -303,26 +510,27 @@
           Bring an idea, leave with hardware.
         </p>
         <div class="cta-row center">
-          <a href={CONFIG.signupUrl} class="btn">Sign up now</a>
+          <a href={CONFIG.welcomeUrl} class="btn">Sign up now</a>
           <a href={CONFIG.slackUrl} class="btn btn-glass">Join the Slack</a>
         </div>
       </div>
     </section>
   </Reveal>
 
-  <footer class="bar footer">
+  <footer class="pane footer">
     <div class="footer-inner">
       <div class="footer-brand">
         <span class="brand"><span class="brand-dot" aria-hidden="true"></span>{CONFIG.name}<sup>®</sup></span>
-        <p class="label">build the future · ship the future · spend the {CONFIG.currency.toLowerCase()}</p>
+        <p class="label">build the future · ship the future · keep the hardware</p>
         <a class="archer label" href={CONFIG.archer.url} target="_blank" rel="noopener">
-          ↳ part of the {CONFIG.archer.name} YSWS join on Slack
+          ↳ part of the {CONFIG.archer.name} YSWS, join on Slack
         </a>
       </div>
       <nav class="footer-links label">
+        <a href={CONFIG.welcomeUrl}>get onboarded</a>
+        <a href={CONFIG.programUrl}>program</a>
         <a href={CONFIG.slackUrl}>slack</a>
         <a href={CONFIG.hackatimeUrl}>hackatime</a>
-        <a href={CONFIG.rudderUrl}>rudder</a>
         <a href="https://ysws.hackclub.com/">all ysws</a>
         <a href="https://hackclub.com">hack club</a>
       </nav>
@@ -344,14 +552,17 @@
     transform-origin: top center;
     transition: transform 0.3s var(--ease);
   }
-  .flag img { width: 138px; height: auto; filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.36)); }
+  .flag img { width: 196px; height: auto; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.4)); }
   .flag:hover { transform: rotate(3deg) translateY(3px); }
 
   /* ── PAGE STACK ── */
   .stack {
     display: grid;
-    gap: clamp(18px, 2.6vw, 30px);
-    padding-top: clamp(84px, 9vw, 116px);
+    /* minmax(0,1fr), not the implicit auto column, or the widest child
+       (the shop table) sizes the whole stack and overflows small screens */
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(16px, 2.4vw, 26px);
+    padding-top: clamp(112px, 12vw, 152px);
     padding-bottom: clamp(30px, 5vw, 54px);
   }
 
@@ -386,23 +597,25 @@
   }
   .sec-bar { padding-block: 12px; }
   .sec-bar h2 { font-size: 1.5rem; font-weight: 300; white-space: nowrap; }
-  .sec-sub { margin: 0; font-size: 0.98rem; color: var(--ink-2); max-width: 68ch; }
+  .sec-sub { margin: 0; font-size: 0.98rem; color: var(--ink-2); max-width: 66ch; }
+  .sec-bar-cta { margin-left: auto; padding-block: 8px; white-space: nowrap; }
   .hero-kicker { flex: 1; }
   .hero-bar-cta { margin-left: auto; padding-block: 8px; }
 
   /* ── HERO ── */
   .hero-pane {
     display: grid;
-    grid-template-columns: 380px minmax(0, 1fr);
+    grid-template-columns: 336px minmax(0, 1fr);
     align-items: center;
     gap: clamp(20px, 3vw, 46px);
     padding: clamp(24px, 3.4vw, 44px);
     overflow: hidden;
   }
-  .hero-figure {
+  .hero-figure { display: grid; justify-items: center; }
+  .orb-wrap {
     --mx: 0;
     --my: 0;
-    justify-self: center;
+    width: 100%;
     transform: translate3d(calc(var(--mx) * -18px), calc(var(--my) * -14px), 0);
     transition: transform 0.6s var(--ease);
   }
@@ -421,14 +634,19 @@
   }
 
   /* ── WORLD PICKER (the signature) ── */
-  .picker { margin-top: 26px; animation: rise 0.9s 0.2s var(--ease) both; }
-  .picker-label { display: block; margin-bottom: 9px; }
+  .picker {
+    width: 100%;
+    margin-top: 6px;
+    text-align: center;
+    animation: rise 0.9s 0.2s var(--ease) both;
+  }
+  .picker-label { display: block; margin-bottom: 8px; font-size: 0.64rem; }
   .segment {
     position: relative;
-    display: inline-grid;
+    display: grid;
     grid-auto-flow: column;
     grid-auto-columns: 1fr;
-    min-width: min(100%, 420px);
+    width: 100%;
     padding: 3px;
     border-radius: var(--r-pill);
   }
@@ -450,11 +668,11 @@
   .seg {
     position: relative;
     z-index: 1;
-    padding: 9px 14px;
+    padding: 7px 8px;
     border: none;
     background: none;
     font-family: var(--display);
-    font-size: 0.94rem;
+    font-size: 0.82rem;
     font-weight: 600;
     color: var(--ink-2);
     text-shadow: var(--etch);
@@ -463,15 +681,15 @@
   }
   .seg.on { color: var(--pill-tx); text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35); }
   .world-tag {
-    margin: 15px 0 0;
-    max-width: 56ch;
-    font-size: 1rem;
+    margin: 12px 0 0;
+    font-size: 0.9rem;
+    color: var(--ink-2);
     animation: fade-up 0.5s var(--ease) both;
   }
   .world-tag em { font-style: normal; font-weight: 700; color: var(--accent); }
-  .world-hud { margin: 7px 0 0; animation: fade-up 0.5s 0.08s var(--ease) both; }
+  .world-hud { margin: 6px 0 0; font-size: 0.68rem; animation: fade-up 0.5s 0.08s var(--ease) both; }
 
-  .cta-row { display: flex; align-items: center; gap: 20px; margin-top: 26px; flex-wrap: wrap; }
+  .cta-row { display: flex; align-items: center; gap: 20px; margin-top: 32px; flex-wrap: wrap; }
   .cta-row.center { justify-content: center; }
 
   /* ── TRACKS ── */
@@ -505,15 +723,14 @@
     stroke: #fff;
     filter: drop-shadow(0 1px 2px rgba(0, 20, 40, 0.5));
   }
-  .track:hover .badge { animation: nudge 0.6s var(--ease); }
 
   /* ── STEPS ── */
-  .steps { padding: 10px 26px 16px; }
+  .steps { padding: 10px 26px 24px; }
   .rail {
     position: absolute;
     left: 50px;
     top: 44px;
-    bottom: 44px;
+    bottom: 100px;
     width: 3px;
     border-radius: 3px;
     background: linear-gradient(180deg, var(--aqua-lt), var(--aqua), var(--accent));
@@ -527,10 +744,8 @@
     gap: 20px;
     align-items: start;
     padding: 18px 0;
-    transition: transform 0.28s var(--ease);
   }
   .step + .step { border-top: 1px solid rgba(255, 255, 255, 0.14); }
-  .step:hover { transform: translateX(5px); }
   .bubble {
     display: grid;
     place-items: center;
@@ -544,62 +759,130 @@
     background: radial-gradient(circle at 36% 24%, #fff 1%, var(--aqua-lt) 12%, var(--aqua) 46%, var(--aqua-dk) 100%);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.38), inset 0 -3px 6px rgba(0, 0, 0, 0.3), inset 0 2px 3px rgba(255, 255, 255, 0.8);
   }
-  .step:hover .bubble { background: radial-gradient(circle at 36% 24%, #fff 1%, var(--lime) 16%, var(--grass) 58%, var(--grass-dk) 100%); }
   .step h3 { font-size: 1.14rem; font-weight: 600; }
   .step p { margin: 6px 0 0; color: var(--ink-2); max-width: 64ch; }
+  .steps-cta { margin: 18px 0 0 68px; }
 
   /* ── SHOP ── */
-  .shop { padding: 6px 26px 18px; overflow: hidden; }
-  .shop-head,
-  .shop-row {
+  .shop { padding: 20px 26px 24px; overflow: hidden; }
+
+  .grid {
     display: grid;
-    grid-template-columns: 70px 1.25fr 1.5fr 130px;
-    align-items: center;
+    grid-template-columns: repeat(auto-fill, minmax(238px, 1fr));
+    /* every row as tall as the tallest, so the whole grid reads as one block
+       instead of rows that each find their own height */
+    grid-auto-rows: 1fr;
     gap: 18px;
-    padding: 14px 6px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
   }
-  .shop-head { padding-top: 16px; border-bottom: 2px solid rgba(255, 255, 255, 0.2); }
-  .shop-row {
-    position: relative;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: var(--r-sm);
-    transition: background 0.25s, transform 0.25s var(--ease);
-  }
-  .shop-row:last-child { border-bottom: none; }
-  .shop-row:hover { background: rgba(255, 255, 255, 0.08); transform: translateX(5px); }
-  .shop-code { color: var(--ink-3); font-size: 0.84rem; }
-  .shop-name { font-family: var(--display); font-weight: 600; font-size: 1.04rem; text-shadow: var(--etch); }
-  .shop-note { color: var(--ink-2); font-size: 0.94rem; text-shadow: var(--etch); }
-  .shop-cost { display: grid; gap: 7px; justify-items: end; }
-  .price {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    font-family: var(--display);
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: var(--accent);
-    text-shadow: var(--etch);
-  }
-  .drop-glyph { width: 0.5em; height: 0.68em; fill: var(--accent); }
-  .drop-glyph .drop-spec { fill: rgba(255, 255, 255, 0.8); }
-  .meter {
-    display: block;
-    width: 100%;
-    height: 6px;
-    border-radius: var(--r-pill);
-    background: rgba(0, 0, 0, 0.32);
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--r-md);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.13) 0%, rgba(255, 255, 255, 0.03) 46%, rgba(0, 0, 0, 0.12) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+      0 6px 14px rgba(0, 0, 0, 0.22);
     overflow: hidden;
   }
-  .meter span {
-    display: block;
-    height: 100%;
-    border-radius: var(--r-pill);
-    background: linear-gradient(90deg, var(--aqua-lt), var(--aqua));
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+
+  /* product plate: an inset window so photos read as objects under glass */
+  .thumb {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 3;
+    min-height: 0;
+    overflow: hidden;
+    padding: 14px;
+    background:
+      radial-gradient(120% 90% at 50% 0%, rgba(255, 255, 255, 0.2), transparent 62%),
+      rgba(0, 0, 0, 0.3);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.45), inset 0 -1px 0 rgba(255, 255, 255, 0.16);
   }
-  .shop-row:hover .meter span { background: linear-gradient(90deg, var(--lime), var(--grass)); }
+  /* max-*, not width/height: an image's intrinsic size must never grow the
+     plate, or cards in a row end up with mismatched thumbnails */
+  .thumb img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45));
+  }
+  .plate {
+    display: grid;
+    place-items: center;
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    font-family: var(--display);
+    font-size: 1.6rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    background: radial-gradient(circle at 34% 24%, #fff 1%, var(--aqua-lt) 14%, var(--aqua) 48%, var(--aqua-dk) 100%);
+    box-shadow: 0 8px 14px rgba(0, 0, 0, 0.4), inset 0 -3px 6px rgba(0, 0, 0, 0.3), inset 0 2px 3px rgba(255, 255, 255, 0.85);
+  }
+  .ribbon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 4px 10px;
+    border-radius: var(--r-pill);
+    font-size: 0.56rem;
+    color: var(--pill-tx);
+    text-shadow: none;
+    background-image:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.18) 49.6%, rgba(255, 255, 255, 0) 50%),
+      linear-gradient(180deg, var(--pill-hi) 0%, var(--pill-lo) 100%);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
+  }
+
+  .card.sold-out .thumb { opacity: 0.5; }
+  .card.sold-out .card-body { opacity: 0.78; }
+
+  .card-body { display: flex; flex-direction: column; flex: 1; padding: 16px 16px 18px; }
+  .card-body h3 { font-size: 1.08rem; font-weight: 600; }
+  .card-desc { margin: 8px 0 0; color: var(--ink-2); font-size: 0.92rem; }
+
+  .card-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 14px;
+    margin: 16px 0 0;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+  }
+  .card-stats div { display: grid; gap: 3px; }
+  .card-stats div:last-child { justify-items: end; text-align: right; }
+  .card-stats dd { margin: 0; color: var(--ink-2); font-size: 0.88rem; white-space: nowrap; }
+  .card-stats { margin-top: auto; }
+  .card-foot { margin: 9px 0 0; min-height: 1.1em; }
+  .card-cta { width: 100%; margin-top: 12px; }
+
+  .price {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 1.08rem;
+    color: var(--accent);
+    text-shadow: var(--etch);
+    white-space: nowrap;
+  }
+  .msg { margin: 20px 6px 16px; color: var(--ink-2); }
+  .msg a { color: var(--accent); text-decoration: underline; }
+
+  /* ── NEWS / EVENTS ── */
+  .feed { display: grid; gap: 2px; padding: 8px 26px 18px; }
+  .entry { padding: 16px 6px; }
+  .entry + .entry { border-top: 1px solid rgba(255, 255, 255, 0.14); }
+  .entry h3 { font-size: 1.12rem; font-weight: 600; }
+  .entry p { margin: 6px 0 0; color: var(--ink-2); max-width: 70ch; }
 
   /* ── FAQ ── */
   .faq { padding: 6px 22px 14px; }
@@ -635,6 +918,7 @@
     margin: 0;
     padding: 0 46px 20px 4px;
     color: var(--ink-2);
+    max-width: 82ch;
     animation: fade-up 0.36s var(--ease) both;
   }
 
@@ -697,50 +981,44 @@
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: none; }
   }
-  @keyframes nudge {
-    0% { transform: translateY(0) scale(1); }
-    45% { transform: translateY(-6px) scale(1.06); }
-    100% { transform: translateY(0) scale(1); }
-  }
 
   /* ── RESPONSIVE ── */
   @media (max-width: 960px) {
-    .hero-pane { grid-template-columns: 1fr; }
-    .hero-figure { grid-row: 1; width: min(74%, 280px); }
+    .hero-pane { grid-template-columns: minmax(0, 1fr); }
+    .hero-figure { grid-row: 1; }
+    .orb-wrap { width: min(62%, 240px); }
+    .picker { max-width: 420px; margin-top: 14px; }
     .tracks { grid-template-columns: 1fr; }
     .track + .track { box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.14); }
     .sec-bar { flex-wrap: wrap; gap: 10px 16px; }
     .sec-bar .sep { display: none; }
+    .sec-bar-cta { margin-left: 0; }
   }
   @media (max-width: 640px) {
     .flag { left: 12px; }
-    .flag img { width: 104px; }
-    .stack { padding-top: 84px; }
+    .flag img { width: 138px; }
+    .stack { padding-top: 106px; }
     .hero-bar { flex-wrap: wrap; padding-block: 12px; }
     .hero-bar .sep,
     .hero-kicker { display: none; }
     .hero-bar-cta { margin-left: 0; }
-    .shop { padding-inline: 14px; }
-    .shop-head { display: none; }
-    .shop-row {
-      grid-template-columns: 1fr 112px;
-      gap: 2px 14px;
-      padding: 14px 4px;
-    }
-    .shop-code { grid-column: 1; grid-row: 1; }
-    .shop-name { grid-column: 1; grid-row: 2; }
-    .shop-note { grid-column: 1; grid-row: 3; }
-    .shop-cost { grid-column: 2; grid-row: 1 / 4; align-content: center; }
+    .shop { padding: 16px 14px 18px; }
+    /* minmax(0,…) so a track may shrink under the stats row's min-content,
+       which otherwise forces a single card per row */
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .card-body { padding: 13px 13px 15px; }
+    .card-body h3 { font-size: 1rem; }
+    .card-desc { font-size: 0.86rem; }
+    .card-stats { gap: 8px; margin-top: auto; padding-top: 10px; }
+    .card-stats .label { font-size: 0.6rem; letter-spacing: 0.1em; }
+    .card-stats dd { font-size: 0.8rem; }
+    .price { font-size: 0.94rem; }
     .steps { padding-inline: 14px; }
     .rail { left: 36px; }
     .step { grid-template-columns: 40px 1fr; gap: 14px; }
     .bubble { width: 38px; height: 38px; font-size: 0.86rem; }
-    .segment { grid-auto-flow: row; grid-auto-columns: auto; border-radius: var(--r-md); }
-    .knob { display: none; }
-    .seg { border-radius: var(--r-pill); border: 1px solid transparent; }
-    .seg.on {
-      border-color: var(--pill-ln);
-      background-image: linear-gradient(180deg, var(--pill-hi) 0%, var(--pill-lo) 100%);
-    }
+    .steps-cta { margin-left: 0; }
+    /* stays a real segmented control, just sized to fit a phone */
+    .seg { padding: 8px 4px; font-size: 0.78rem; }
   }
 </style>

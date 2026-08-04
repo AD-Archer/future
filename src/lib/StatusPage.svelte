@@ -62,7 +62,7 @@
     min-height: 100svh;
     display: grid;
     align-items: center;
-    padding: clamp(88px, 11vw, 130px) 0 clamp(30px, 5vw, 54px);
+    padding: clamp(116px, 13vw, 160px) 0 clamp(30px, 5vw, 54px);
   }
 
   .flag {
@@ -72,7 +72,7 @@
     z-index: 5;
     line-height: 0;
   }
-  .flag img { width: 138px; height: auto; filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.36)); }
+  .flag img { width: 196px; height: auto; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.4)); }
 
   .brand {
     display: inline-flex;
@@ -157,7 +157,7 @@
 
   @media (max-width: 560px) {
     .flag { left: 12px; }
-    .flag img { width: 104px; }
+    .flag img { width: 138px; }
     .code { font-size: 2.4rem; }
   }
 </style>

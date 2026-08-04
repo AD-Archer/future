@@ -1,7 +1,21 @@
 <script>
   // Reusable rules block. Drop it in any YSWS site:
   //   <Rules label="the rules" title="..." intro="..." items={[{tag, text, mark?}]} />
-  let { label = 'the rules', title = 'The rules.', intro = '', items = [] } = $props()
+  // `requirements` and `aiPercent` come from Stern and render above the
+  // evergreen list when the program has set them.
+  let {
+    label = 'the rules',
+    title = 'The rules.',
+    intro = '',
+    items = [],
+    requirements = '',
+    aiPercent = null
+  } = $props()
+
+  // count what actually renders, live rows included
+  let shown = $derived(
+    items.length + (typeof aiPercent === 'number' ? 1 : 0) + (requirements ? 1 : 0)
+  )
 
   // Split a rule's text around its optional highlighted phrase.
   function parts(item) {
@@ -21,10 +35,33 @@
     <h2>{title}</h2>
     <span class="sep" aria-hidden="true"></span>
     {#if intro}<p class="rules-intro">{intro}</p>{/if}
-    <span class="rules-count label">{items.length} checks</span>
+    <span class="rules-count label">{shown} checks</span>
   </header>
 
   <ol class="pane rules-list">
+    {#if typeof aiPercent === 'number'}
+      <li class="rule live">
+        <span class="tick" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5 12.5 10 17.5 19 7" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </span>
+        <span class="rule-tag label">AI CAP</span>
+        <p class="rule-text">
+          At most <mark>{aiPercent}%</mark> of the project can be AI-assisted, and you only get
+          credit for the hours you actually worked.
+        </p>
+      </li>
+    {/if}
+
+    {#if requirements}
+      <li class="rule live">
+        <span class="tick" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5 12.5 10 17.5 19 7" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </span>
+        <span class="rule-tag label">PROGRAM</span>
+        <p class="rule-text">{requirements}</p>
+      </li>
+    {/if}
+
     {#each items as item}
       <li class="rule">
         <span class="tick" aria-hidden="true">
@@ -60,10 +97,10 @@
     align-items: center;
     padding: 15px 6px;
     border-radius: var(--r-sm);
-    transition: background 0.25s, transform 0.25s var(--ease);
+    transition: background 0.25s;
   }
   .rule + .rule { border-top: 1px solid rgba(255, 255, 255, 0.14); }
-  .rule:hover { background: rgba(255, 255, 255, 0.08); transform: translateX(5px); }
+  .rule:hover { background: rgba(255, 255, 255, 0.06); }
 
   .tick {
     display: grid;

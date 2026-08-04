@@ -1,25 +1,30 @@
-// All the copy + config for FUTURE lives here so it's trivial to tweak.
+// Static copy for FUTURE. Anything that changes often (the shop, the FAQ,
+// news, events, project types, the AI cap) comes from Stern's public API at
+// runtime instead, see lib/api/stern.js. Keep this file for voice, not facts.
+
+import { WELCOME_URL } from './api/stern.js'
 
 export const CONFIG = {
-  name: "FUTURE",
-  minHours: 15,
-  currency: "Drops",
-  slackUrl: "https://hackclub.enterprise.slack.com/archives/C0BMMC7486R",
-  signupUrl: "#signup",
-  hackatimeUrl: "https://hackatime.hackclub.com/",
-  rudderUrl: "https://rudder.hackclub.com/",
-  adminUrl: "/admin",
-  flagUrl: "https://hackclub.com",
+  name: 'FUTURE',
+  // fallback only; the live name comes from the API's currency payload
+  currency: 'Coins',
+  signupUrl: WELCOME_URL,
+  welcomeUrl: WELCOME_URL,
+  slackUrl: 'https://hackclub.enterprise.slack.com/archives/C0BMMC7486R',
+  hackatimeUrl: 'https://hackatime.hackclub.com/',
+  programUrl: 'https://stern.hackclub.com/a/future/home',
+  shopUrl: 'https://stern.hackclub.com/a/future/shop',
+  flagUrl: 'https://hackclub.com',
   // The umbrella program this YSWS runs under.
   archer: {
-    name: "Archer",
-    url: "https://hackclub.enterprise.slack.com/archives/C0BHZLZF8BX",
-  },
-};
+    name: 'Archer',
+    url: 'https://hackclub.enterprise.slack.com/archives/C0BHZLZF8BX'
+  }
+}
 
-// The world switcher the page recolours itself around whichever future
-// you pick. `atmos` colours feed the <Sky> canvas; the CSS tokens for each
-// world live in app.css under :root[data-world='...'].
+// The world switcher: the page recolours itself around whichever future you
+// pick. `atmos` colours feed the <Sky> canvas; the CSS tokens for each world
+// live in app.css under :root[data-world='...'].
 export const WORLDS = [
   {
     id: 'aero',
@@ -51,7 +56,7 @@ export const TRACKS = [
   {
     icon: 'tool',
     title: 'A tool from that world',
-    body: 'Something that does a real job an agent that handles your inbox, a script that runs your room, a device that saves you an hour a week.'
+    body: 'Something that does a real job: an agent that handles your inbox, a script that runs your room, a device that saves you an hour a week.'
   },
   {
     icon: 'seed',
@@ -66,86 +71,66 @@ export const TRACKS = [
 ]
 
 export const STEPS = [
-  { n: '01', title: 'Pick your future', body: 'Sign up, join the Slack, and tell us which world you are building from. Stickers ship free to a real address.' },
-  { n: '02', title: 'Build it', body: 'Spend 15 hours or more making it real. Solo, or with a crew from the Slack.' },
-  { n: '03', title: 'Track every hour', body: 'Log your time with Hackatime. One honest hour becomes one drop. We only count what you actually worked.' },
-  { n: '04', title: 'Ship it in public', body: 'Push the repo, write a README, record a demo a stranger could follow.' },
-  { n: '05', title: 'Spend your drops', body: 'We review it, you redeem drops for real hardware, shipped to your door.' }
-]
-
-export const REWARDS = [
-  { code: 'F-01', cost: 5, name: 'Holo sticker set', note: 'iridescent vinyl, 5 designs' },
-  { code: 'F-02', cost: 15, name: 'FUTURE tee', note: 'heavyweight organic cotton' },
-  { code: 'F-03', cost: 25, name: 'Mechanical keyboard', note: '65%, hot-swap, lubed linears' },
-  { code: 'F-04', cost: 40, name: 'Desk plant + planter', note: 'a real one, low maintenance' },
-  { code: 'F-05', cost: 80, name: 'Raspberry Pi 5 kit', note: 'board, case, PSU, 64GB card' },
-  { code: 'F-06', cost: 220, name: 'Studio headphones', note: 'closed back, flat response' },
-  { code: 'F-07', cost: 500, name: 'A whole laptop', note: 'enough compute to build the rest' }
+  {
+    n: '01',
+    title: 'Get onboarded',
+    body: 'Sign up on Stern, pick the world you are building from, and read the welcome page. It is free and takes a few minutes.'
+  },
+  {
+    n: '02',
+    title: 'Build it',
+    body: 'Make something real from that world. Solo, or with a crew from the Slack.'
+  },
+  {
+    n: '03',
+    title: 'Track your hours',
+    body: 'Log your time with Hackatime and link those projects when you submit. Only tracked, non-AI hours count.'
+  },
+  {
+    n: '04',
+    title: 'Submit for review',
+    body: 'An open-source repo, a live link a reviewer can actually open, then hit submit. Post devlogs while you build.'
+  },
+  {
+    n: '05',
+    title: 'Spend what you earn',
+    body: 'Your approved hours are the price tag. Ship enough of them and the shop opens up.'
+  }
 ]
 
 // Reusable <Rules> content. `mark` (optional) highlights a phrase inside `text`.
+// Live project types, the AI cap and any extra requirements come from the API
+// and render alongside these.
 export const RULES = {
   label: 'the rules',
-  title: 'Seven things we check.',
-  intro:
-    'Non-negotiable. Miss one and your project comes back with notes fix it and resubmit before the deadline.',
+  title: 'What reviewers check',
+  intro: 'Non-negotiable. Miss one and your project comes back with notes. Fix it and resubmit.',
   items: [
     {
       tag: 'NEW',
-      text: 'Every project is built brand-new, during the program, for the future. No reusing, reviving, or resubmitting old work.',
+      text: 'Built brand-new, during the program, for the future. No reusing or resubmitting a project you shipped elsewhere.',
       mark: 'for the future'
     },
     {
       tag: 'TRACKED',
-      text: 'All work is time-tracked with Hackatime, Lookout, or Lapse. Untracked hours cannot be counted.'
-    },
-    {
-      tag: 'PUBLIC',
-      text: 'Every project needs a public GitHub repo even if code is not the point. Include images, a README, and a demo anyone can try.'
-    },
-    {
-      tag: 'HARDWARE',
-      text: 'Building something physical? Track it with Lookout or Lapse, and still ship a repo with photos and a README.'
+      text: 'Every hour tracked in Hackatime and linked to the project you submit. Untracked hours cannot be counted.'
     },
     {
       tag: 'OPEN',
-      text: 'Repos stay public and open-source, permanently, under a permissive license.'
+      text: 'A public, open-source GitHub repo with a README and images, under a permissive license, permanently.'
     },
     {
-      tag: 'IT WORKS',
-      text: 'It has to actually run. Someone with zero context should be able to open your demo and use it.'
+      tag: 'IT RUNS',
+      text: 'A live link a reviewer can open and use. Hardware can ship schematics or a build video instead.'
+    },
+    {
+      tag: 'YOUR WORK',
+      text: 'You only get credit for your own hours, and no AI-generated text or images in the project itself.'
     },
     {
       tag: 'SAY IT',
-      text: 'Your project page must include the words “for the future.” Yes, really we check.',
+      text: 'Your project page includes the words “for the future.” Yes, really: we check.',
       mark: 'for the future'
     }
   ]
 }
-
-export const FAQ = [
-  {
-    q: 'Do I need to be good at this already?',
-    a: 'No. Beginners are the point. If you can open a terminal you can finish this, and the Slack is full of people who will sit with you when something breaks.'
-  },
-  {
-    q: 'What counts as “from the future”?',
-    a: 'Anything that helps future-you, builds future-you, or looks like it arrived from the world you picked. When you are unsure, ask in Slack we lean generous.'
-  },
-  {
-    q: 'Does my future have to be a nice one?',
-    a: 'It does not. Build the utopia, the neon-soaked city, or the workshop after everything fell over. We only ask that the tech is something you would actually want to exist.'
-  },
-  {
-    q: `What are ${CONFIG.currency}?`,
-    a: `Your build hours, made spendable. One tracked hour is one drop, and drops come off the shop list below as real hardware, shipped to your door.`
-  },
-  {
-    q: 'Is it actually free?',
-    a: 'Completely. No fees, no subscription, nothing to buy. You build, we ship.'
-  },
-  {
-    q: 'How old do I have to be?',
-    a: `${CONFIG.name} is for teenagers 18 and under, like every Hack Club program. Older builders are welcome to mentor in the Slack.`
-  }
-]

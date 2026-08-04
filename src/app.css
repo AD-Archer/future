@@ -245,6 +245,16 @@ p { text-shadow: var(--etch); }
     inset 0 -2px 1px rgba(0, 0, 0, 0.4);
 }
 
+/* Title bars wrap to several lines on narrow screens, where the hard specular
+   midline would slice through the text. Soften those to the pane gradient. */
+@media (max-width: 960px) {
+  .window > .bar {
+    background-image:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.03) 32%, rgba(255, 255, 255, 0) 58%),
+      linear-gradient(180deg, var(--pane-1) 0%, var(--pane-2) 46%, var(--pane-3) 100%);
+  }
+}
+
 /* 2px etched separator, as seen between every control in 2008 */
 .sep {
   width: 2px;
