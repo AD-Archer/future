@@ -338,6 +338,77 @@ p { text-shadow: var(--etch); }
   transform: none;
 }
 
+/* ── FILTER CHIPS ────────────────────────────────────────────────────
+   One row of toggles, shared by every filtered grid on the page. Sorting
+   controls are deliberately absent: each grid arrives in the one order that
+   means something (cheapest first, quickest first), so a sort would only ever
+   make that worse.                                                          */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  padding: 7px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--r-pill);
+  font-family: var(--display);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  text-shadow: var(--etch);
+  /* the smoked base matters: sheen alone leaves white text on a pale pill */
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.26) 0%, rgba(255, 255, 255, 0.08) 49.6%, rgba(255, 255, 255, 0) 50%),
+    linear-gradient(180deg, var(--pane-1) 0%, var(--pane-2) 50%, var(--pane-3) 50.1%, var(--pane-4) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+  transition: color 0.2s, border-color 0.2s, filter 0.2s;
+}
+
+.chip:hover { color: var(--ink); border-color: rgba(255, 255, 255, 0.34); }
+
+.chip.on {
+  color: var(--pill-tx);
+  border-color: var(--pill-ln);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.18) 49.6%, rgba(255, 255, 255, 0) 50%),
+    linear-gradient(180deg, var(--pill-hi) 0%, var(--pill-lo) 100%);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.chip-n {
+  margin-left: 7px;
+  font-family: var(--mono);
+  font-size: 0.9em;
+  letter-spacing: 0;
+  opacity: 0.65;
+}
+
+/* ── SHOW MORE ───────────────────────────────────────────────────────
+   Phone-only. A long grid is fine to scan with a mouse but reads as a wall on
+   a phone, so small screens get a short list and open the rest on request.
+   Hidden everywhere else, which is why the clipping rule is media-scoped too. */
+.more-row { display: none; }
+
+@media (max-width: 640px) {
+  .more-row {
+    display: grid;
+    justify-items: center;
+    margin-top: 16px;
+  }
+
+  /* Phone-only clip, shared by every grid, so desktop lists are untouched.
+     Kept in CSS rather than slicing the array in each component: nothing has to
+     track the viewport, and a resize past this breakpoint reveals the rest on
+     its own. Eight is four rows of two — enough to show the range, short enough
+     to scroll past. */
+  .grid.clipped > .card:nth-child(n + 9) { display: none; }
+}
+
 /* text link with a sliding underline */
 .btn-text {
   display: inline-flex;

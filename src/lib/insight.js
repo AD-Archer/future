@@ -1,4 +1,11 @@
-import { init, track } from '@plausible-analytics/tracker'
+// Loaded lazily, never statically. Content blockers refuse any request whose
+// URL looks like analytics, and the tracker package's path carries both
+// "analytics" and "plausible" — as a static import a blocked response takes the
+// whole module graph down with it, which in dev means a blank white page. This
+// file is named `insight` for the same reason: `analytics.js` gets eaten on
+// sight. Everything below already treats tracking as optional; the import has
+// to be optional too.
+let track = null
 
 const DEFAULT_DOMAIN = 'future.hackclub.com'
 const DEFAULT_HOST = 'https://plausible.adarcher.app'
@@ -20,9 +27,14 @@ export function setAnalyticsContext(next = {}) {
 export function initAnalytics() {
   if (initialized || typeof window === 'undefined') return
   initialized = true
+  load()
+}
 
+async function load() {
   try {
-    init({
+    const tracker = await import('@plausible-analytics/tracker')
+
+    tracker.init({
       domain,
       endpoint: `${host}/api/event`,
       autoCapturePageviews: true,
@@ -38,11 +50,12 @@ export function initAnalytics() {
       })
     })
 
+    track = tracker.track
     ready = true
     attachClickTracking()
     observeSections()
   } catch {
-    // Analytics must never prevent the page from working.
+    // Blocked, offline, or failed to start. The page carries on without it.
   }
 }
 
@@ -51,7 +64,7 @@ export function refreshAnalyticsSections() {
 }
 
 export function trackEvent(name, props = {}, options = {}) {
-  if (!ready) return
+  if (!ready || !track) return
 
   try {
     track(name, {

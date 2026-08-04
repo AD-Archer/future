@@ -6,9 +6,10 @@
   import Examples from './lib/Examples.svelte'
   import Reveal from './lib/Reveal.svelte'
   import Rules from './lib/Rules.svelte'
+  import Primer from './lib/Primer.svelte'
   import StatusPage from './lib/StatusPage.svelte'
   import { loadContent } from './lib/api/stern.js'
-  import { initAnalytics, refreshAnalyticsSections, setAnalyticsContext, trackEvent } from './lib/analytics.js'
+  import { initAnalytics, refreshAnalyticsSections, setAnalyticsContext, trackEvent } from './lib/insight.js'
   import { CONFIG, WORLDS, TRACKS, STEPS, RULES } from './lib/data.js'
 
   let openFaq = $state(0)
@@ -107,15 +108,26 @@
   }
   const validPaths = new Set(['/', '/index.html', '/404', '/error'])
 
-  // short enough never to wrap in a card column; the label supplies the unit
-  const hoursLabel = (h) => (h ? `${h} hrs` : 'none')
-  // priceType decides the unit. These prizes are priced in *hours*, not the
-  // program currency, so never assume coins just because a price exists.
-  function priceLabel(p) {
-    if (p.priceType === 'hours') return `${p.price} hrs`
-    if (p.priceType === 'currency') return `${p.price} ${coinName}`
-    if (p.priceType === 'free' || !p.price) return 'Free'
-    return `${p.price} ${p.priceType ?? ''}`.trim()
+  // The price is the card's anchor, so the numeral and its unit are set apart:
+  // big figure, small caps unit. priceType decides that unit — these prizes are
+  // priced in *hours*, not the program currency, so never assume coins.
+  function priceParts(p) {
+    if (p.priceType === 'free' || !p.price) return { n: 'Free', u: '' }
+    if (p.priceType === 'hours') return { n: String(p.price), u: 'hrs' }
+    if (p.priceType === 'currency') return { n: String(p.price), u: coinName }
+    return { n: String(p.price), u: p.priceType ?? '' }
+  }
+
+  // Most Stern descriptions are just the product name typed again ("DJI Mini
+  // 4K" / "DJI Mini 4K"). Those tell a reader nothing, so drop any description
+  // that adds no word the name doesn't already have, and keep the rest.
+  const words = (s) => new Set(s.toLowerCase().match(/[a-z0-9]+/g) ?? [])
+  function blurb(p) {
+    const d = (p.description ?? '').trim()
+    if (!d) return ''
+    const known = words(p.name)
+    for (const w of words(d)) if (!known.has(w)) return d
+    return ''
   }
 
   // a prize whose imageUrl 404s falls back to the plate, not a broken frame
@@ -127,8 +139,56 @@
     return p.stock > 0 ? `${p.stock} left` : 'out of stock'
   }
 
-  const noteLine = (p) =>
-    [stockLabel(p), p.estimatedShip ? `ships ${p.estimatedShip}` : ''].filter(Boolean).join(' · ')
+  // One line for everything conditional, so a card never grows a whole extra
+  // row just because one item happens to track stock.
+  const metaLine = (p) =>
+    [
+      stockLabel(p),
+      p.minHoursRequired > 0 ? `unlocks at ${p.minHoursRequired} hrs` : '',
+      p.estimatedShip ? `ships ${p.estimatedShip}` : ''
+    ]
+      .filter(Boolean)
+      .join(' · ')
+
+  // Reserve that line on every card only when some item actually fills it.
+  // Either way every card in the grid ends up exactly the same height.
+  let anyMeta = $derived(api.prizes.some((p) => metaLine(p)))
+
+  // ── SHOP FILTERS ──
+  // Brackets, not a slider: the useful question is "what can I reach with the
+  // hours I have", and round numbers answer it faster than a range control. No
+  // sort control — the list already arrives cheapest first, which is the one
+  // order worth having.
+  // only hour-priced items belong in a band; anything else has no hour value
+  const hours = (p) => (p.priceType === 'hours' && typeof p.price === 'number' ? p.price : null)
+
+  const BANDS = [
+    { id: 'all', label: 'everything', match: () => true },
+    { id: 'low', label: 'under 25 hrs', match: (p) => hours(p) !== null && hours(p) < 25 },
+    { id: 'mid', label: '25–75 hrs', match: (p) => hours(p) !== null && hours(p) >= 25 && hours(p) <= 75 },
+    { id: 'high', label: 'over 75 hrs', match: (p) => hours(p) !== null && hours(p) > 75 },
+    { id: 'featured', label: 'featured', match: (p) => p.isFeatured }
+  ]
+
+  let band = $state('all')
+  let shopOpen = $state(false)
+  const SHOP_CLIP = 8
+
+  // a band with nothing in it is not a choice, so it never becomes a chip
+  let bands = $derived(
+    BANDS.map((b) => ({ ...b, n: api.prizes.filter(b.match).length })).filter(
+      (b) => b.id === 'all' || b.n > 0
+    )
+  )
+
+  let shopList = $derived(api.prizes.filter((BANDS.find((b) => b.id === band) ?? BANDS[0]).match))
+
+  const chooseBand = (next) => {
+    if (next === band) return
+    band = next
+    shopOpen = false // a new filter is a new list; re-clip it on phones
+    trackEvent('Shop: Filter', { band: next, results: shopList.length })
+  }
 
   function readLocation() {
     return { pathname: window.location.pathname }
@@ -379,6 +439,15 @@
     </section>
   </Reveal>
 
+  <!-- ────────── NEW HERE (the terms the shop below runs on) ────────── -->
+  <Reveal>
+    <Primer
+      slackUrl={CONFIG.slackUrl}
+      hackatimeUrl={CONFIG.hackatimeUrl}
+      welcomeUrl={CONFIG.welcomeUrl}
+    />
+  </Reveal>
+
   <!-- ───────────────────────── SHOP (live) ───────────────────────── -->
   <Reveal>
     <section class="window" id="shop">
@@ -399,54 +468,78 @@
         {#if api.loading}
           <p class="msg">Loading the live shop…</p>
         {:else if api.prizes.length}
-          <ul class="grid">
-            {#each api.prizes as p, i}
+          <div class="chips shop-chips" role="group" aria-label="Filter by cost">
+            {#each bands as b}
+              <button type="button" class="chip" class:on={band === b.id}
+                onclick={() => chooseBand(b.id)}>
+                {b.label}{#if b.id !== 'all'}<span class="chip-n">{b.n}</span>{/if}
+              </button>
+            {/each}
+          </div>
+
+          <ul class="grid" class:clipped={!shopOpen}>
+            {#each shopList as p, i}
+              {@const spec = blurb(p)}
+              {@const price = priceParts(p)}
               <li class="card" class:sold-out={p.stock === 0}>
-                <div class="thumb">
-                  {#if p.imageUrl && !brokenImages.has(p.id)}
-                    <!-- first row eager, so thumbnails are not blank on arrival -->
-                    <img
-                      src={p.imageUrl}
-                      alt={p.name}
-                      loading={i < 4 ? 'eager' : 'lazy'}
-                      decoding="async"
-                      onerror={() => markBroken(p.id)}
-                    />
-                  {:else}
-                    <!-- no photo on this item yet: a glossy plate, not a broken frame -->
-                    <span class="plate" aria-hidden="true">{p.name.trim().slice(0, 1)}</span>
-                  {/if}
-                  {#if p.isFeatured}<span class="ribbon label">featured</span>{/if}
-                </div>
-
-                <div class="card-body">
-                  <h3>{p.name}</h3>
-                  {#if p.description}<p class="card-desc">{p.description}</p>{/if}
-
-                  <dl class="card-stats">
-                    <div>
-                      <dt class="label">cost</dt>
-                      <dd class="price">{priceLabel(p)}</dd>
-                    </div>
-                    {#if p.minHoursRequired > 0}
-                      <div>
-                        <dt class="label">unlocks at</dt>
-                        <dd class="mono">{hoursLabel(p.minHoursRequired)}</dd>
-                      </div>
+                <!-- the whole tile is the link: 28 copies of one button label
+                     was noise, and it cost every card a row of its height -->
+                <a class="tile" href={CONFIG.shopUrl}
+                  data-analytics="Prize: View" data-analytics-placement="shop-card"
+                  data-analytics-item={p.name} data-analytics-stock={stockLabel(p) || 'unlimited'}>
+                  <div class="thumb">
+                    {#if p.imageUrl && !brokenImages.has(p.id)}
+                      <!-- first rows eager, so thumbnails are not blank on arrival -->
+                      <img
+                        src={p.imageUrl}
+                        alt={p.name}
+                        loading={i < 6 ? 'eager' : 'lazy'}
+                        decoding="async"
+                        onerror={() => markBroken(p.id)}
+                      />
+                    {:else}
+                      <!-- no photo on this item yet: a glossy plate, not a broken frame -->
+                      <span class="plate" aria-hidden="true">{p.name.trim().slice(0, 1)}</span>
                     {/if}
-                  </dl>
 
+                    <!-- price pinned to the object it belongs to, in the same
+                         glossy bubble language as the badges and step numbers -->
+                    <span class="tag">
+                      <span class="tag-n">{price.n}</span>
+                      {#if price.u}<span class="tag-u">{price.u}</span>{/if}
+                    </span>
 
-                  <!-- always rendered, so every card's footer sits on the same line -->
-                  <p class="card-foot hud">{noteLine(p)}</p>
+                    {#if p.isFeatured}<span class="ribbon label">featured</span>{/if}
 
-                  <a class="btn btn-glass btn-sm card-cta" href={CONFIG.shopUrl}
-                    data-analytics="Prize: View" data-analytics-placement="shop-card"
-                    data-analytics-item={p.name} data-analytics-stock={stockLabel(p) || 'unlimited'}>View on website</a>
-                </div>
+                    <!-- the description rides on the plate, never in the card's
+                         flow, so its length cannot change the card's height -->
+                    {#if spec}<span class="spec"><span class="spec-t">{spec}</span></span>{/if}
+                  </div>
+
+                  <div class="card-body">
+                    <h3>{p.name}</h3>
+                    {#if anyMeta}<p class="card-meta hud">{metaLine(p)}</p>{/if}
+                  </div>
+                </a>
               </li>
             {/each}
           </ul>
+
+          {#if !shopOpen && shopList.length > SHOP_CLIP}
+            <div class="more-row">
+              <button type="button" class="btn btn-glass btn-sm"
+                onclick={() => { shopOpen = true; trackEvent('Shop: Show More', { band, total: shopList.length }) }}>
+                Show {shopList.length - SHOP_CLIP} more
+              </button>
+            </div>
+          {/if}
+
+          {#if !shopList.length}
+            <p class="msg">
+              Nothing in that range yet.
+              <button type="button" class="link" onclick={() => chooseBand('all')}>Show everything</button>
+            </p>
+          {/if}
         {:else}
           <p class="msg">
             No items are listed right now. The shop is filled in on Stern, so check
@@ -812,21 +905,20 @@
   /* ── SHOP ── */
   .shop { padding: 20px 26px 24px; overflow: hidden; }
 
+  /* A tile wall, not a column of slabs. No grid-auto-rows: 1fr here — that made
+     every row match the tallest card in the whole grid, so one long description
+     padded out all 28. Card height is now fixed by geometry instead: a plate of
+     fixed ratio over a two-line name. */
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(238px, 1fr));
-    /* every row as tall as the tallest, so the whole grid reads as one block
-       instead of rows that each find their own height */
-    grid-auto-rows: 1fr;
-    gap: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
     list-style: none;
     margin: 0;
     padding: 0;
   }
 
   .card {
-    display: flex;
-    flex-direction: column;
     border-radius: var(--r-md);
     background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.13) 0%, rgba(255, 255, 255, 0.03) 46%, rgba(0, 0, 0, 0.12) 100%);
     box-shadow:
@@ -834,7 +926,16 @@
       inset 0 -1px 0 rgba(0, 0, 0, 0.35),
       0 6px 14px rgba(0, 0, 0, 0.22);
     overflow: hidden;
+    transition: transform 0.24s var(--ease), box-shadow 0.24s var(--ease);
   }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.44),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+      0 14px 24px rgba(0, 0, 0, 0.3);
+  }
+  .tile { display: grid; grid-template-rows: auto 1fr; height: 100%; }
 
   /* product plate: an inset window so photos read as objects under glass */
   .thumb {
@@ -850,6 +951,9 @@
       rgba(0, 0, 0, 0.3);
     box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.45), inset 0 -1px 0 rgba(255, 255, 255, 0.16);
   }
+  /* keep the product clear of the label strip, but only on the cards that carry
+     a label — an item with nothing to say shows more of itself instead */
+  .thumb:has(.spec) { padding-bottom: 48px; }
   /* max-*, not width/height: an image's intrinsic size must never grow the
      plate, or cards in a row end up with mismatched thumbnails */
   .thumb img {
@@ -876,8 +980,9 @@
   }
   .ribbon {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 9px;
+    right: 9px;
+    z-index: 2;
     padding: 4px 10px;
     border-radius: var(--r-pill);
     font-size: 0.56rem;
@@ -889,39 +994,111 @@
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
   }
 
+  /* ── PRICE TAG ──
+     The shop's currency is tracked hours, so the hour count is the anchor of
+     the card: big figure, small-caps unit, pinned onto the object it buys. */
+  .tag {
+    position: absolute;
+    top: 9px;
+    left: 9px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    padding: 3px 11px 4px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: var(--r-pill);
+    font-family: var(--display);
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 20, 40, 0.6);
+    background-image:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.14) 49.6%, rgba(255, 255, 255, 0) 50%),
+      radial-gradient(130% 160% at 28% 0%, var(--aqua-lt) 0%, var(--aqua) 46%, var(--aqua-dk) 100%);
+    box-shadow:
+      0 5px 10px rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.7),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+  }
+  .tag-n { font-size: 1.04rem; font-weight: 700; letter-spacing: -0.015em; }
+  .tag-u {
+    font-size: 0.58rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    opacity: 0.88;
+  }
+
+  /* ── SPEC LABEL ──
+     A frosted strip stuck across the foot of the plate, never in the card's
+     flow — so a 300-character description and a one-word one produce exactly
+     the same card. Two lines always read; hover opens the full text. It needs
+     its own fill and hairline rather than a soft scrim, or the text vanishes
+     against the darker product plates. Deliberately no backdrop-filter: the
+     fill is already near-opaque, and nesting blurs inside the pane's own
+     backdrop-filter drops the sibling tag and ribbon out of the composite. */
+  .spec {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    padding: 8px 11px 9px;
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+    background-image:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 60%),
+      linear-gradient(180deg, rgba(5, 17, 28, 0.9) 0%, rgba(3, 11, 19, 0.96) 100%);
+  }
+  .spec-t {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    font-size: 0.8rem;
+    line-height: 1.42;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: var(--etch);
+  }
+  .card:hover .spec-t {
+    -webkit-line-clamp: 7;
+    line-clamp: 7;
+  }
+
   .card.sold-out .thumb { opacity: 0.5; }
   .card.sold-out .card-body { opacity: 0.78; }
 
-  .card-body { display: flex; flex-direction: column; flex: 1; padding: 16px 16px 18px; }
-  .card-body h3 { font-size: 1.08rem; font-weight: 600; }
-  .card-desc { margin: 8px 0 0; color: var(--ink-2); font-size: 0.92rem; }
-
-  .card-stats {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 14px;
-    margin: 16px 0 0;
-    padding-top: 12px;
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
+  /* the name gets a fixed two-line box, so one- and two-line titles agree */
+  .card-body { padding: 12px 14px 14px; }
+  .card-body h3 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    min-height: 2.5em;
+    font-size: 0.99rem;
+    font-weight: 600;
+    line-height: 1.25;
   }
-  .card-stats div { display: grid; gap: 3px; }
-  .card-stats div:last-child { justify-items: end; text-align: right; }
-  .card-stats dd { margin: 0; color: var(--ink-2); font-size: 0.88rem; white-space: nowrap; }
-  .card-stats { margin-top: auto; }
-  .card-foot { margin: 9px 0 0; min-height: 1.1em; }
-  .card-cta { width: 100%; margin-top: 12px; }
-
-  .price {
-    font-family: var(--display);
-    font-weight: 700;
-    font-size: 1.08rem;
-    color: var(--accent);
-    text-shadow: var(--etch);
-    white-space: nowrap;
+  .card-meta { margin: 7px 0 0; min-height: 1.1em; font-size: 0.68rem; }
+  .shop-chips {
+    position: relative;
+    z-index: 1;
+    padding-bottom: 16px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
   }
+
   .msg { margin: 20px 6px 16px; color: var(--ink-2); }
   .msg a { color: var(--accent); text-decoration: underline; }
+  .link {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--accent);
+    font: inherit;
+    text-decoration: underline;
+  }
 
   /* ── NEWS / EVENTS ── */
   .feed { display: grid; gap: 2px; padding: 8px 26px 18px; }
@@ -1049,16 +1226,19 @@
     .hero-kicker { display: none; }
     .hero-bar-cta { margin-left: 0; }
     .shop { padding: 16px 14px 18px; }
-    /* minmax(0,…) so a track may shrink under the stats row's min-content,
-       which otherwise forces a single card per row */
+    /* minmax(0,…) so a card may shrink under its own min-content, which
+       otherwise forces a single card per row */
     .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-    .card-body { padding: 13px 13px 15px; }
-    .card-body h3 { font-size: 1rem; }
-    .card-desc { font-size: 0.86rem; }
-    .card-stats { gap: 8px; margin-top: auto; padding-top: 10px; }
-    .card-stats .label { font-size: 0.6rem; letter-spacing: 0.1em; }
-    .card-stats dd { font-size: 0.8rem; }
-    .price { font-size: 0.94rem; }
+    .card-body { padding: 10px 11px 12px; }
+    .card-body h3 { font-size: 0.92rem; }
+    .tag { top: 7px; left: 7px; padding: 2px 9px 3px; }
+    .tag-n { font-size: 0.94rem; }
+    /* a three-digit price plus full tracking on "featured" overruns a 2-up
+       card, so the ribbon gives up its padding and letterspacing first */
+    .ribbon { top: 7px; right: 7px; padding: 3px 7px; letter-spacing: 0.08em; }
+    .thumb:has(.spec) { padding-bottom: 42px; }
+    .spec { padding: 7px 9px 8px; }
+    .spec-t { font-size: 0.74rem; }
     .steps { padding-inline: 14px; }
     .rail { left: 36px; }
     .step { grid-template-columns: 40px 1fr; gap: 14px; }
