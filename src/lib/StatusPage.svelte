@@ -26,7 +26,7 @@
     <img src="/branding/flag-orpheus-top.svg" alt="Hack Club" width="150" height="85" />
   </a>
 
-  <section class="window wrap status" aria-labelledby="status-title">
+  <section class="window wrap status" aria-labelledby="status-title" data-analytics-section="status">
     <header class="bar status-bar">
       <span class="brand"><img class="brand-logo" src="/Logo.svg" alt={CONFIG.name} /></span>
       <span class="sep" aria-hidden="true"></span>
@@ -48,8 +48,8 @@
           <p class="detail mono">{detail}</p>
         {/if}
         <div class="actions">
-          <a class="btn" href="/">Back to {CONFIG.name}</a>
-          <a class="btn btn-glass" href={CONFIG.slackUrl}>Join the Slack</a>
+          <a class="btn" href="/" data-analytics="CTA: Click" data-analytics-placement="status-home">Back to {CONFIG.name}</a>
+          <a class="btn btn-glass" href={CONFIG.slackUrl} data-analytics="CTA: Click" data-analytics-placement="status-slack">Join the Slack</a>
         </div>
       </div>
     </div>

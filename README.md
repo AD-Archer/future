@@ -41,6 +41,26 @@ section instead of the page.
 
 Every call to action points at **<https://stern.hackclub.com/future/welcome>**.
 
+## Analytics
+
+FUTURE uses the same self-hosted Plausible instance as Stern at
+`https://plausible.adarcher.app`, registered with the site domain
+`future.hackclub.com`. The client tracker records pageviews and engagement, plus
+outbound links, downloads, form submissions, section views, and the main actions
+on this page. Custom events include world selection, FAQ opens, example filters
+and sorts, shop/prize clicks, CTA placement, and content-load status.
+
+For local verification, opt in explicitly so localhost traffic is sent to the
+FUTURE site in Plausible:
+
+```bash
+VITE_PLAUSIBLE_CAPTURE_LOCALHOST=true pnpm dev
+```
+
+The dashboard still needs goals created for any custom event you want surfaced
+as a conversion. The event properties are available for filtering once events
+have arrived.
+
 ## Link previews
 
 `index.html` carries a full Open Graph + Twitter card set, and `public/og.jpg` is the

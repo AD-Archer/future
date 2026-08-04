@@ -8,6 +8,7 @@
   import Rules from './lib/Rules.svelte'
   import StatusPage from './lib/StatusPage.svelte'
   import { loadContent } from './lib/api/stern.js'
+  import { initAnalytics, refreshAnalyticsSections, setAnalyticsContext, trackEvent } from './lib/analytics.js'
   import { CONFIG, WORLDS, TRACKS, STEPS, RULES } from './lib/data.js'
 
   let openFaq = $state(0)
@@ -88,7 +89,22 @@
     return out
   })
 
-  const toggle = (i) => (openFaq = openFaq === i ? -1 : i)
+  const toggle = (i) => {
+    const next = openFaq === i ? -1 : i
+    openFaq = next
+    trackEvent('FAQ: Toggle', {
+      index: i,
+      state: next === i ? 'open' : 'close',
+      question: api.faq[i]?.question
+    })
+  }
+
+  const chooseWorld = (i) => {
+    if (i === worldIndex) return
+    const previous = world.id
+    worldIndex = i
+    trackEvent('World: Select', { from: previous, world: WORLDS[i]?.id })
+  }
   const validPaths = new Set(['/', '/index.html', '/404', '/error'])
 
   // short enough never to wrap in a card column; the label supplies the unit
@@ -150,12 +166,30 @@
   // paint the picked world onto the document so every token cross-fades
   $effect(() => {
     document.documentElement.dataset.world = world.id
+    setAnalyticsContext({ world: world.id })
+  })
+
+  $effect(() => {
+    initAnalytics()
+  })
+
+  $effect(() => {
+    if (!api.loading) refreshAnalyticsSections()
   })
 
   $effect(() => {
     loadContent()
-      .then((c) => (api = { ...c, loading: false }))
-      .catch((err) => (api = { ...api, loading: false, failures: [err.message] }))
+      .then((c) => {
+        api = { ...c, loading: false }
+        trackEvent('Content: Loaded', {
+          status: c.failures.length ? 'partial' : 'complete',
+          failed: c.failures.join(',')
+        }, { interactive: false })
+      })
+      .catch((err) => {
+        api = { ...api, loading: false, failures: [err.message] }
+        trackEvent('Content: Loaded', { status: 'failed', failed: 'all' }, { interactive: false })
+      })
   })
 
   $effect(() => {
@@ -214,7 +248,8 @@
 <Ticker items={ticker} header />
 
 <!-- Hack Club flag, hung from the top-left corner, over the header -->
-<a class="flag" href={CONFIG.flagUrl} target="_blank" rel="noopener" aria-label="Hack Club">
+<a class="flag" href={CONFIG.flagUrl} target="_blank" rel="noopener" aria-label="Hack Club"
+  data-analytics="CTA: Click" data-analytics-placement="hack-club-flag">
   <img src="/branding/flag-orpheus-top.svg" alt="Hack Club" width="150" height="85" />
 </a>
 
@@ -225,7 +260,8 @@
       <span class="brand"><img class="brand-logo" src="/Logo.svg" alt={CONFIG.name} /></span>
       <span class="sep" aria-hidden="true"></span>
       <span class="hero-kicker label">Hack Club · You Ship, We Ship by Archer</span>
-      <a class="hero-bar-cta btn-text" href={CONFIG.slackUrl}>Slack →</a>
+      <a class="hero-bar-cta btn-text" href={CONFIG.slackUrl}
+        data-analytics="CTA: Click" data-analytics-placement="hero-slack">Slack →</a>
     </header>
 
     <div class="pane hero-pane" bind:this={stage}>
@@ -246,7 +282,7 @@
                 aria-checked={worldIndex === i}
                 class="seg"
                 class:on={worldIndex === i}
-                onclick={() => (worldIndex = i)}
+                onclick={() => chooseWorld(i)}
               >
                 {w.name}
               </button>
@@ -268,8 +304,10 @@
         </p>
 
         <div class="cta-row">
-          <a href={CONFIG.welcomeUrl} class="btn">Get onboarded</a>
-          <a href="#how" class="btn-text">Read the protocol →</a>
+          <a href={CONFIG.welcomeUrl} class="btn" data-analytics="CTA: Click"
+            data-analytics-placement="hero-onboarding">Get onboarded</a>
+          <a href="#how" class="btn-text" data-analytics="CTA: Click"
+            data-analytics-placement="hero-protocol">Read the protocol →</a>
         </div>
       </div>
     </div>
@@ -335,7 +373,8 @@
             </li>
           {/each}
         </ol>
-        <a class="btn steps-cta" href={CONFIG.welcomeUrl}>Start at step one</a>
+        <a class="btn steps-cta" href={CONFIG.welcomeUrl} data-analytics="CTA: Click"
+          data-analytics-placement="protocol-onboarding">Start at step one</a>
       </div>
     </section>
   </Reveal>
@@ -350,7 +389,8 @@
           Priced in tracked hours, cheapest first. Ship enough and you pick something off
           this list.
         </p>
-        <a class="sec-bar-cta btn-text" href={CONFIG.programUrl}>Full shop →</a>
+        <a class="sec-bar-cta btn-text" href={CONFIG.programUrl} data-analytics="CTA: Click"
+          data-analytics-placement="shop-header">Full shop →</a>
       </header>
 
       <div class="pane shop">
@@ -400,7 +440,9 @@
                   <!-- always rendered, so every card's footer sits on the same line -->
                   <p class="card-foot hud">{noteLine(p)}</p>
 
-                  <a class="btn btn-glass btn-sm card-cta" href={CONFIG.shopUrl}>View on website</a>
+                  <a class="btn btn-glass btn-sm card-cta" href={CONFIG.shopUrl}
+                    data-analytics="Prize: View" data-analytics-placement="shop-card"
+                    data-analytics-item={p.name} data-analytics-stock={stockLabel(p) || 'unlimited'}>View on website</a>
                 </div>
               </li>
             {/each}
@@ -520,8 +562,10 @@
           Bring an idea, leave with hardware.
         </p>
         <div class="cta-row center">
-          <a href={CONFIG.welcomeUrl} class="btn">Sign up now</a>
-          <a href={CONFIG.slackUrl} class="btn btn-glass">Join the Slack</a>
+          <a href={CONFIG.welcomeUrl} class="btn" data-analytics="CTA: Click"
+            data-analytics-placement="footer-onboarding">Sign up now</a>
+          <a href={CONFIG.slackUrl} class="btn btn-glass" data-analytics="CTA: Click"
+            data-analytics-placement="footer-slack">Join the Slack</a>
         </div>
       </div>
     </section>
@@ -532,17 +576,18 @@
       <div class="footer-brand">
         <span class="brand"><img class="brand-logo" src="/Logo.svg" alt={CONFIG.name} /></span>
         <p class="label">build the future · ship the future · keep the hardware</p>
-        <a class="archer label" href={CONFIG.archer.url} target="_blank" rel="noopener">
+        <a class="archer label" href={CONFIG.archer.url} target="_blank" rel="noopener"
+          data-analytics="CTA: Click" data-analytics-placement="archer-slack">
           ↳ part of the {CONFIG.archer.name} YSWS, join on Slack
         </a>
       </div>
       <nav class="footer-links label">
-        <a href={CONFIG.welcomeUrl}>get onboarded</a>
-        <a href={CONFIG.programUrl}>program</a>
-        <a href={CONFIG.slackUrl}>slack</a>
-        <a href={CONFIG.hackatimeUrl}>hackatime</a>
-        <a href="https://ysws.hackclub.com/">all ysws</a>
-        <a href="https://hackclub.com">hack club</a>
+        <a href={CONFIG.welcomeUrl} data-analytics="CTA: Click" data-analytics-placement="footer-onboarding">get onboarded</a>
+        <a href={CONFIG.programUrl} data-analytics="CTA: Click" data-analytics-placement="footer-program">program</a>
+        <a href={CONFIG.slackUrl} data-analytics="CTA: Click" data-analytics-placement="footer-slack">slack</a>
+        <a href={CONFIG.hackatimeUrl} data-analytics="CTA: Click" data-analytics-placement="footer-hackatime">hackatime</a>
+        <a href="https://ysws.hackclub.com/" data-analytics="CTA: Click" data-analytics-placement="footer-ysws">all ysws</a>
+        <a href="https://hackclub.com" data-analytics="CTA: Click" data-analytics-placement="footer-hack-club">hack club</a>
       </nav>
     </div>
     <p class="disclaimer label">A Hack Club YSWS · made by teenagers, for teenagers.</p>

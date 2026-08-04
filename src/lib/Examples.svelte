@@ -1,4 +1,6 @@
 <script>
+  import { trackEvent } from './analytics.js'
+
   // Build ideas and shipped projects from Stern, in one grid.
   //   <Examples items={api.examples} />
   // `items` arrives already folded and sorted by normalizeExamples().
@@ -8,6 +10,16 @@
   let order = $state('quickest')
   let brokenImages = $state(new Set())
   const markBroken = (id) => (brokenImages = new Set(brokenImages).add(id))
+
+  const chooseTag = (next) => {
+    tag = tag === next ? '' : next
+    trackEvent('Examples: Filter', { tag: tag || 'all' })
+  }
+
+  const chooseOrder = (next) => {
+    order = next
+    trackEvent('Examples: Sort', { order })
+  }
 
   // every tag in the set, most-used first, so the chips lead with what exists
   let tags = $derived.by(() => {
@@ -51,7 +63,7 @@
       <div class="controls">
         {#if tags.length}
           <div class="chips" role="group" aria-label="Filter by tag">
-            <button type="button" class="chip" class:on={tag === ''} onclick={() => (tag = '')}>
+            <button type="button" class="chip" class:on={tag === ''} onclick={() => chooseTag('')}>
               everything
             </button>
             {#each tags as t}
@@ -59,7 +71,7 @@
                 type="button"
                 class="chip"
                 class:on={tag === t}
-                onclick={() => (tag = tag === t ? '' : t)}
+                onclick={() => chooseTag(t)}
               >
                 {t}
               </button>
@@ -69,7 +81,7 @@
 
         <label class="sort">
           <span class="label">sort</span>
-          <select bind:value={order}>
+          <select value={order} onchange={(event) => chooseOrder(event.currentTarget.value)}>
             <option value="quickest">quickest first</option>
             <option value="biggest">biggest first</option>
           </select>
@@ -113,7 +125,9 @@
                 </p>
 
                 {#if item.link}
-                  <a class="btn btn-glass btn-sm card-cta" href={item.link} target="_blank" rel="noopener">
+                  <a class="btn btn-glass btn-sm card-cta" href={item.link} target="_blank" rel="noopener"
+                    data-analytics="Example: Open" data-analytics-kind={item.kind}
+                    data-analytics-item={item.title}>
                     {item.kind === 'project' ? 'See the build' : 'Reference'}
                   </a>
                 {/if}
@@ -122,7 +136,7 @@
           {/each}
         </ul>
       {:else}
-        <p class="msg">Nothing tagged “{tag}”. <button type="button" class="link" onclick={() => (tag = '')}>Show everything</button></p>
+        <p class="msg">Nothing tagged “{tag}”. <button type="button" class="link" onclick={() => chooseTag('')}>Show everything</button></p>
       {/if}
     </div>
   </section>

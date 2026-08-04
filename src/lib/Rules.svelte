@@ -30,7 +30,7 @@
   }
 </script>
 
-<section class="window">
+<section class="window" data-analytics-section="rules">
   <header class="bar rules-bar">
     <h2>{title}</h2>
     <span class="sep" aria-hidden="true"></span>

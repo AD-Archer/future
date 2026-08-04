@@ -13,5 +13,8 @@
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "svelte": "^5.19.0",
     "vite": "^6.0.7"
+  },
+  "dependencies": {
+    "@plausible-analytics/tracker": "^0.4.5"
   }
 }
