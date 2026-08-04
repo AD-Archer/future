@@ -41,6 +41,27 @@ section instead of the page.
 
 Every call to action points at **<https://stern.hackclub.com/future/welcome>**.
 
+## Link previews
+
+`index.html` carries a full Open Graph + Twitter card set, and `public/og.jpg` is the
+1200×630 preview image (~92KB). Crawlers do not run JS and will not resolve a relative
+`og:image`, so the absolute origin is substituted into `%SITE_URL%` at build time by a
+small plugin in [vite.config.js](vite.config.js):
+
+```bash
+just build                                    # defaults to https://future.hackclub.com
+SITE_URL=https://future.hackclub.com just build   # or set it explicitly per deploy
+```
+
+Set `SITE_URL` to whatever the site is actually served from, or the previews will point
+at the wrong host. To redraw the card after a copy or palette change, edit
+[tools/og-card.html](tools/og-card.html) (plain HTML using the same tokens) and run:
+
+```bash
+npm i -D playwright-core   # once; the browser comes from npx playwright install chromium
+node tools/og-card.mjs     # renders at 2x, downsamples to 1200×630, writes public/og.jpg
+```
+
 ## Where to edit things
 
 | What | File |

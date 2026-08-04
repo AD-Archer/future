@@ -3,6 +3,7 @@
   import Orb from './lib/Orb.svelte'
   import Droplets from './lib/Droplets.svelte'
   import Ticker from './lib/Ticker.svelte'
+  import Examples from './lib/Examples.svelte'
   import Reveal from './lib/Reveal.svelte'
   import Rules from './lib/Rules.svelte'
   import StatusPage from './lib/StatusPage.svelte'
@@ -25,7 +26,8 @@
     rules: null,
     faq: [],
     news: [],
-    events: []
+    events: [],
+    examples: []
   })
 
   let world = $derived(WORLDS[worldIndex])
@@ -303,6 +305,13 @@
       </div>
     </section>
   </Reveal>
+
+  <!-- ─────────────── THINGS TO BUILD (live, hidden when empty) ─────────────── -->
+  {#if api.examples.length}
+    <Reveal>
+      <Examples items={api.examples} />
+    </Reveal>
+  {/if}
 
   <!-- ───────────────────────── PROTOCOL ───────────────────────── -->
   <Reveal>
