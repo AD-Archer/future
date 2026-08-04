@@ -28,7 +28,7 @@
 
   <section class="window wrap status" aria-labelledby="status-title">
     <header class="bar status-bar">
-      <span class="brand"><span class="brand-dot" aria-hidden="true"></span>{CONFIG.name}<sup>®</sup></span>
+      <span class="brand"><img class="brand-logo" src="/Logo.svg" alt={CONFIG.name} /></span>
       <span class="sep" aria-hidden="true"></span>
       <span class="label">{eyebrow} · {code}</span>
     </header>
@@ -77,20 +77,12 @@
   .brand {
     display: inline-flex;
     align-items: center;
-    gap: 9px;
-    font-family: var(--display);
-    font-weight: 600;
-    font-size: 1.18rem;
-    letter-spacing: 0.06em;
-    text-shadow: var(--etch);
+    flex: 0 0 auto;
   }
-  .brand sup { font-size: 0.44em; font-weight: 400; top: -0.9em; color: var(--ink-3); }
-  .brand-dot {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 34% 26%, #fff 4%, var(--aqua-lt) 22%, var(--aqua) 58%, var(--aqua-dk) 100%);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), inset 0 -2px 3px rgba(0, 0, 0, 0.25);
+  .brand-logo {
+    width: auto;
+    height: clamp(30px, 4vw, 42px);
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
   }
 
   .status-bar {
