@@ -447,6 +447,27 @@ p { text-shadow: var(--etch); }
   background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.3));
 }
 
+/* ── SKELETON LOADING ──
+   Shimmer placeholders in the same glass/plate language as the finished
+   content, so the ~1s Stern fetch never sits behind a bare "Loading…" string
+   on an otherwise fully-dressed page. */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.07);
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 34%, rgba(255, 255, 255, 0.18) 50%, transparent 66%);
+  transform: translateX(-100%);
+  animation: shimmer 1.7s ease-in-out infinite;
+}
+@keyframes shimmer {
+  to { transform: translateX(100%); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -63,6 +63,14 @@
       <filter id="{uid}-blur" x="-30%" y="-30%" width="160%" height="160%">
         <feGaussianBlur stdDeviation="5" />
       </filter>
+
+      <!-- fractal-noise cloud texture: the single thing a generic gradient
+           "planet" icon always skips, and the thing that reads as Earth from
+           orbit rather than a sphere primitive the moment it appears -->
+      <filter id="{uid}-clouds" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.014 0.05" numOctaves="3" seed="7" result="n" />
+        <feColorMatrix in="n" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 3.6 -1.7" />
+      </filter>
     </defs>
 
     <!-- atmospheric halo -->
@@ -98,6 +106,15 @@
         <ellipse cx="200" cy="190" rx="112" ry="132" />
       </g>
 
+      <!-- cloud deck: fractal-noise texture, drifting independently of the
+           land so the two layers read at different depths, the way weather
+           actually scrolls faster than coastline from orbit -->
+      <g class="turn-clouds" opacity="0.55">
+        {#each [0, 400] as offset}
+          <rect x={offset - 40} y="0" width="480" height="380" filter="url(#{uid}-clouds)" />
+        {/each}
+      </g>
+
       <!-- terminator -->
       <circle cx="200" cy="190" r="132" fill="url(#{uid}-shade)" />
 
@@ -119,12 +136,17 @@
     <!-- hard glint -->
     <ellipse class="glint" cx="150" cy="96" rx="26" ry="14" fill="#fff" opacity="0.9" transform="rotate(-24 150 96)" />
 
-    <!-- orbit ring, front + satellite riding the exact arc -->
+    <!-- orbit ring, front + a planted flag riding the exact arc: not a
+         generic orbiting satellite dot, but a marker for the real place
+         you're building from — the "ship a real piece of it" premise,
+         staked into the globe rather than floating past it -->
     <g class="ring">
       <path d="M28 196 A172 52 0 0 0 372 196" fill="none" stroke="#fff" stroke-width="2.5" stroke-opacity="0.85" />
       <g transform={reduce ? 'translate(330 176)' : null}>
-        <circle cx="0" cy="0" r="13" fill="#fff" opacity="0.35" filter="url(#{uid}-soft)" />
-        <circle cx="0" cy="0" r="6.5" fill="#fff" />
+        <circle cx="0" cy="6" r="12" fill="#fff" opacity="0.3" filter="url(#{uid}-soft)" />
+        <line x1="0" y1="10" x2="0" y2="-9" stroke="#fff" stroke-width="1.6" stroke-linecap="round" />
+        <path d="M0,-9 L9.5,-5.2 L0,-1.4 Z" fill="var(--lime)" stroke="#fff" stroke-width="0.6" stroke-linejoin="round" />
+        <circle cx="0" cy="10" r="2.4" fill="#fff" />
         {#if !reduce}
           <animateMotion
             path="M28 196 A172 52 0 0 0 372 196"
@@ -155,6 +177,8 @@
   .orb svg { width: 100%; height: auto; }
 
   .turn { animation: turn 38s linear infinite; }
+  /* drifts faster than the land underneath it — weather outruns coastline */
+  .turn-clouds { animation: turn 21s linear infinite; }
   .sheen { animation: breathe 7s ease-in-out infinite alternate; }
   .glint { animation: twinkle 5s ease-in-out infinite alternate; }
 
@@ -181,6 +205,7 @@
   @media (prefers-reduced-motion: reduce) {
     .orb,
     .turn,
+    .turn-clouds,
     .sheen,
     .glint { animation: none; }
   }

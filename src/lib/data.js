@@ -55,18 +55,18 @@ export const WORLDS = [
 export const TRACKS = [
   {
     icon: 'tool',
-    title: 'A tool from that world',
-    body: 'Something that does a real job: an agent that handles your inbox, a script that runs your room, a device that saves you an hour a week.'
+    title: 'CAD',
+    body: 'Create a 3d model of something you wish existed.'
   },
   {
     icon: 'seed',
-    title: 'Groundwork for your own future',
-    body: 'A portfolio, a study system, a first product, a site that gets you hired. Build the thing that gets future-you further along.'
+    title: 'code',
+    body: 'Create a website/app that does something useful that hasn\'t been done before.' 
   },
   {
     icon: 'signal',
-    title: 'A postcard from there',
-    body: 'Interfaces, holograms, weird hardware, impossible dashboards. Retro-futurist, Y2K, or straight out of next year: if it looks like it arrived from a future, it counts.'
+    title: 'Something Physical',
+    body: 'Build something! Something really really cool using whatever hardware you have available.'
   }
 ]
 
@@ -74,12 +74,12 @@ export const STEPS = [
   {
     n: '01',
     title: 'Get onboarded',
-    body: 'Sign up on Stern, pick the future you are building from, and read the welcome page. It is free and takes a few minutes.'
+    body: 'Sign up on Stern, and read the welcome page. It is free and takes a few minutes.'
   },
   {
     n: '02',
     title: 'Build it',
-    body: 'Make something real from that world. Solo, or with a crew from the Slack.'
+    body: 'Make something.'
   },
   {
     n: '03',
@@ -89,7 +89,7 @@ export const STEPS = [
   {
     n: '04',
     title: 'Submit for review',
-    body: 'An open-source repo, a live link a reviewer can actually open, then hit submit. Post devlogs while you build.'
+    body: 'An open-source repo, a live link a reviewer can actually open, then hit submit. Post devlogs if you make something physical while you build.'
   },
   {
     n: '05',
@@ -107,13 +107,8 @@ export const RULES = {
   intro: 'Non-negotiable. Miss one and your project comes back with notes. Fix it and resubmit.',
   items: [
     {
-      tag: 'NEW',
-      text: 'Built brand-new, during the program, for the future. No reusing or resubmitting a project you shipped elsewhere.',
-      mark: 'for the future'
-    },
-    {
       tag: 'TRACKED',
-      text: 'Every hour tracked in Hackatime and linked to the project you submit. Untracked hours cannot be counted.'
+      text: 'Every hour tracked in Hackatime or Lapse and linked to the project you submit. Untracked hours cannot be counted.'
     },
     {
       tag: 'OPEN',
@@ -127,10 +122,5 @@ export const RULES = {
       tag: 'YOUR WORK',
       text: 'You only get credit for your own hours, and no AI-generated text or images in the project itself.'
     },
-    {
-      tag: 'SAY IT',
-      text: 'Your project page includes the words “for the future.” Yes, really: we check.',
-      mark: 'for the future'
-    }
   ]
 }

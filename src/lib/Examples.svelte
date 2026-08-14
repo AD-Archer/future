@@ -50,8 +50,7 @@
       <h2>Things to build</h2>
       <span class="sep" aria-hidden="true"></span>
       <p class="sec-sub">
-        Starting points, not a menu. Take one, twist it into your own future, or use it to
-        work out what you would rather make.
+        Just a few ideas to get you started, you should not try to build these exactly, add your own spin.
       </p>
     </header>
 

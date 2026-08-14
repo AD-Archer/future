@@ -13,7 +13,8 @@
   import { CONFIG, WORLDS, TRACKS, STEPS, RULES } from './lib/data.js'
 
   let openFaq = $state(0)
-  let worldIndex = $state(0)
+  // the world picker is gone; the page always runs the first world (Clean sky)
+  const world = WORLDS[0]
   let locationState = $state(readLocation())
   let runtimeError = $state('')
   let stage = $state()
@@ -32,7 +33,6 @@
     examples: []
   })
 
-  let world = $derived(WORLDS[worldIndex])
   let coinName = $derived(api.currency?.name ?? CONFIG.currency)
 
   // how long the program runs, straight off the schedule in the program payload
@@ -100,12 +100,6 @@
     })
   }
 
-  const chooseWorld = (i) => {
-    if (i === worldIndex) return
-    const previous = world.id
-    worldIndex = i
-    trackEvent('World: Select', { from: previous, world: WORLDS[i]?.id })
-  }
   const validPaths = new Set(['/', '/index.html', '/404', '/error'])
 
   // The price is the card's anchor, so the numeral and its unit are set apart:
@@ -329,30 +323,6 @@
 
       <div class="hero-figure">
         <div class="orb-wrap" aria-hidden="true"><Orb size={330} /></div>
-
-        <!-- the world picker belongs to the globe, well clear of the buttons -->
-        <div class="picker" style="--i:{worldIndex}">
-          <span class="picker-label label">which future?</span>
-          <div class="segment bar" role="radiogroup" aria-label="Pick a future">
-            <span class="knob" aria-hidden="true"></span>
-            {#each WORLDS as w, i}
-              <button
-                type="button"
-                role="radio"
-                aria-checked={worldIndex === i}
-                class="seg"
-                class:on={worldIndex === i}
-                onclick={() => chooseWorld(i)}
-              >
-                {w.name}
-              </button>
-            {/each}
-          </div>
-          {#key world.id}
-            <p class="world-tag"><em>{world.kicker}</em> · {world.tag}</p>
-            <p class="hud world-hud">▸ {world.hud}</p>
-          {/key}
-        </div>
       </div>
 
       <div class="hero-copy">
@@ -417,7 +387,7 @@
       <header class="bar sec-bar">
         <h2>The protocol</h2>
         <span class="sep" aria-hidden="true"></span>
-        <p class="sec-sub">Five steps, in order. No application essay, no interview, no fee.</p>
+        <p class="sec-sub">Five steps.</p>
       </header>
 
       <div class="pane steps">
@@ -466,7 +436,19 @@
         <Droplets count={8} seed={21} opacity={0.4} />
 
         {#if api.loading}
-          <p class="msg">Loading the live shop…</p>
+          <ul class="grid" aria-hidden="true">
+            {#each { length: 8 } as _}
+              <li class="card skel-card">
+                <div class="tile">
+                  <div class="thumb skeleton"></div>
+                  <div class="card-body">
+                    <div class="skel-line skel-title skeleton"></div>
+                    <div class="skel-line skel-meta skeleton"></div>
+                  </div>
+                </div>
+              </li>
+            {/each}
+          </ul>
         {:else if api.prizes.length}
           <div class="chips shop-chips" role="group" aria-label="Filter by cost">
             {#each bands as b}
@@ -619,7 +601,13 @@
 
       <div class="pane faq">
         {#if api.loading}
-          <p class="msg">Loading questions…</p>
+          <div aria-hidden="true">
+            {#each [86, 68, 76, 58, 72] as w}
+              <div class="qa skel-qa">
+                <div class="skel-line skeleton" style="width:{w}%"></div>
+              </div>
+            {/each}
+          </div>
         {:else if api.faq.length}
           {#each api.faq as item, i}
             <div class="qa" class:open={openFaq === i}>
@@ -646,7 +634,6 @@
   <Reveal>
     <section class="pane cta" id="signup">
       <Droplets count={12} seed={33} opacity={0.5} />
-      <div class="cta-orb" aria-hidden="true"><Orb size={300} spin={30} /></div>
       <div class="cta-inner">
         <p class="label">now boarding</p>
         <h2>Go build it.</h2>
@@ -751,6 +738,7 @@
     overflow: hidden;
   }
   .hero-figure { display: grid; justify-items: center; }
+
   .orb-wrap {
     --mx: 0;
     --my: 0;
@@ -771,62 +759,6 @@
     color: var(--ink-2);
     animation: rise 0.9s 0.1s var(--ease) both;
   }
-
-  /* ── WORLD PICKER (the signature) ── */
-  .picker {
-    width: 100%;
-    margin-top: 6px;
-    text-align: center;
-    animation: rise 0.9s 0.2s var(--ease) both;
-  }
-  .picker-label { display: block; margin-bottom: 8px; font-size: 0.64rem; }
-  .segment {
-    position: relative;
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: 1fr;
-    width: 100%;
-    padding: 3px;
-    border-radius: var(--r-pill);
-  }
-  .knob {
-    position: absolute;
-    top: 3px;
-    bottom: 3px;
-    left: 3px;
-    width: calc((100% - 6px) / 3);
-    border-radius: var(--r-pill);
-    border: 1px solid var(--pill-ln);
-    background-image:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.18) 49.6%, rgba(255, 255, 255, 0) 50%),
-      linear-gradient(180deg, var(--pill-hi) 0%, var(--pill-lo) 100%);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.7);
-    transform: translateX(calc(var(--i) * 100%));
-    transition: transform 0.45s var(--ease);
-  }
-  .seg {
-    position: relative;
-    z-index: 1;
-    padding: 7px 8px;
-    border: none;
-    background: none;
-    font-family: var(--display);
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--ink-2);
-    text-shadow: var(--etch);
-    transition: color 0.3s;
-    white-space: nowrap;
-  }
-  .seg.on { color: var(--pill-tx); text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35); }
-  .world-tag {
-    margin: 12px 0 0;
-    font-size: 0.9rem;
-    color: var(--ink-2);
-    animation: fade-up 0.5s var(--ease) both;
-  }
-  .world-tag em { font-style: normal; font-weight: 700; color: var(--accent); }
-  .world-hud { margin: 6px 0 0; font-size: 0.68rem; animation: fade-up 0.5s 0.08s var(--ease) both; }
 
   .cta-row { display: flex; align-items: center; gap: 20px; margin-top: 32px; flex-wrap: wrap; }
   .cta-row.center { justify-content: center; }
@@ -1089,6 +1021,15 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.14);
   }
 
+  /* ── SKELETONS ── */
+  .skel-card { pointer-events: none; }
+  .skel-line { border-radius: 4px; }
+  .skel-title { width: 78%; height: 1.1em; min-height: 0; }
+  .skel-meta { width: 46%; height: 0.68rem; min-height: 0; margin-top: 8px; }
+  .skel-qa { padding: 17px 4px; }
+  .skel-qa .skel-line { height: 1.06rem; }
+  .skel-qa + .skel-qa { border-top: 1px solid rgba(255, 255, 255, 0.14); }
+
   .msg { margin: 20px 6px 16px; color: var(--ink-2); }
   .msg a { color: var(--accent); text-decoration: underline; }
   .link {
@@ -1152,14 +1093,6 @@
     padding: clamp(48px, 7vw, 86px) 24px;
     text-align: center;
   }
-  .cta-orb {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: min(72vw, 380px);
-    transform: translate(-50%, -50%);
-    opacity: 0.32;
-  }
   .cta-inner { position: relative; z-index: 2; }
   .cta h2 { margin: 12px 0 0; font-size: clamp(2.2rem, 6vw, 4rem); font-weight: 200; }
   .cta-sub {
@@ -1210,7 +1143,6 @@
     .hero-pane { grid-template-columns: minmax(0, 1fr); }
     .hero-figure { grid-row: 1; }
     .orb-wrap { width: min(62%, 240px); }
-    .picker { max-width: 420px; margin-top: 14px; }
     .tracks { grid-template-columns: 1fr; }
     .track + .track { box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.14); }
     .sec-bar { flex-wrap: wrap; gap: 10px 16px; }
@@ -1244,7 +1176,5 @@
     .step { grid-template-columns: 40px 1fr; gap: 14px; }
     .bubble { width: 38px; height: 38px; font-size: 0.86rem; }
     .steps-cta { margin-left: 0; }
-    /* stays a real segmented control, just sized to fit a phone */
-    .seg { padding: 8px 4px; font-size: 0.78rem; }
   }
 </style>
