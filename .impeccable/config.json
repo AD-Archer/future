@@ -1,0 +1,116 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0, 0, 0, 0.12)",
+        "createdAt": "2026-08-16T21:35:20.003Z",
+        "reason": "depth vocabulary: black/white alphas are inset shade and cast shadow, not palette. DESIGN.md spec routes shadows to the sidecar (extensions.shadows), where all six are documented; the frontmatter colors group cannot hold them."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0, 0, 0, 0.22)",
+        "createdAt": "2026-08-16T21:35:20.040Z",
+        "reason": "depth vocabulary: black/white alphas are inset shade and cast shadow, not palette. DESIGN.md spec routes shadows to the sidecar (extensions.shadows), where all six are documented; the frontmatter colors group cannot hold them."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0, 0, 0, 0.24)",
+        "createdAt": "2026-08-16T21:35:20.071Z",
+        "reason": "depth vocabulary: black/white alphas are inset shade and cast shadow, not palette. DESIGN.md spec routes shadows to the sidecar (extensions.shadows), where all six are documented; the frontmatter colors group cannot hold them."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0, 0, 0, 0.26)",
+        "createdAt": "2026-08-16T21:35:20.101Z",
+        "reason": "depth vocabulary: black/white alphas are inset shade and cast shadow, not palette. DESIGN.md spec routes shadows to the sidecar (extensions.shadows), where all six are documented; the frontmatter colors group cannot hold them."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0, 0, 0, 0.28)",
+        "createdAt": "2026-08-16T21:35:20.132Z",
+        "reason": "depth vocabulary: black/white alphas are inset shade and cast shadow, not palette. DESIGN.md spec routes shadows to the sidecar (extensions.shadows), where all six are documented; the frontmatter colors group cannot hold them."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0, 0, 0, 0.3)",
+        "createdAt": "2026-08-16T21:35:20.162Z",
+        "reason": "depth vocabulary: black/white alphas are inset shade and cast shadow, not palette. DESIGN.md spec routes shadows to the sidecar (extensions.shadows), where all six are documented; the frontmatter colors group cannot hold them."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0, 0, 0, 0.35)",
+        "createdAt": "2026-08-16T21:35:20.194Z",
+        "reason": "depth vocabulary: black/white alphas are inset shade and cast shadow, not palette. DESIGN.md spec routes shadows to the sidecar (extensions.shadows), where all six are documented; the frontmatter colors group cannot hold them."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0, 0, 0, 0.36)",
+        "createdAt": "2026-08-16T21:35:20.225Z",
+        "reason": "depth vocabulary: black/white alphas are inset shade and cast shadow, not palette. DESIGN.md spec routes shadows to the sidecar (extensions.shadows), where all six are documented; the frontmatter colors group cannot hold them."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0, 0, 0, 0.4)",
+        "createdAt": "2026-08-16T21:35:20.255Z",
+        "reason": "depth vocabulary: black/white alphas are inset shade and cast shadow, not palette. DESIGN.md spec routes shadows to the sidecar (extensions.shadows), where all six are documented; the frontmatter colors group cannot hold them."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0, 0, 0, 0.45)",
+        "createdAt": "2026-08-16T21:35:20.284Z",
+        "reason": "depth vocabulary: black/white alphas are inset shade and cast shadow, not palette. DESIGN.md spec routes shadows to the sidecar (extensions.shadows), where all six are documented; the frontmatter colors group cannot hold them."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0, 0, 0, 0.5)",
+        "createdAt": "2026-08-16T21:35:20.314Z",
+        "reason": "depth vocabulary: black/white alphas are inset shade and cast shadow, not palette. DESIGN.md spec routes shadows to the sidecar (extensions.shadows), where all six are documented; the frontmatter colors group cannot hold them."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0, 0, 0, 0.55)",
+        "createdAt": "2026-08-16T21:35:20.344Z",
+        "reason": "depth vocabulary: black/white alphas are inset shade and cast shadow, not palette. DESIGN.md spec routes shadows to the sidecar (extensions.shadows), where all six are documented; the frontmatter colors group cannot hold them."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0, 0, 0, 0.6)",
+        "createdAt": "2026-08-16T21:35:20.375Z",
+        "reason": "depth vocabulary: black/white alphas are inset shade and cast shadow, not palette. DESIGN.md spec routes shadows to the sidecar (extensions.shadows), where all six are documented; the frontmatter colors group cannot hold them."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#000",
+        "createdAt": "2026-08-16T21:35:33.419Z",
+        "reason": "not a colour: this is the opaque stop of the ticker's mask-image gradient (Ticker.svelte L30), which controls alpha, not paint."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "16px",
+        "createdAt": "2026-08-16T21:35:33.453Z",
+        "reason": "root body size below 520px, not a ramp step. Documented in DESIGN.md Typography > Body alongside the 17px root."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "*",
+        "files": [
+          "tools/og-card.html"
+        ],
+        "createdAt": "2026-08-16T21:35:33.482Z",
+        "reason": "build-time fixture: renders once to public/og.jpg via tools/og-card.mjs and cannot import app.css, so it necessarily carries a local copy of the tokens."
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "*",
+        "files": [
+          "tools/og-card.html"
+        ],
+        "createdAt": "2026-08-16T21:35:33.513Z",
+        "reason": "build-time fixture: fixed 1200x630 canvas with its own absolute type sizes; it is not a responsive surface and shares no ramp with the site."
+      }
+    ]
+  }
+}

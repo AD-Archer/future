@@ -2,8 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/Logo.svg" type="image/svg+xml" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="icon" href="/icon-64.png" type="image/png" sizes="64x64" />
+    <link rel="apple-touch-icon" href="/icon-180.png" />
 
     <title>FUTURE — Build the future of your childhood</title>
     <meta
@@ -11,7 +13,17 @@
       content="A Hack Club You Ship, We Ship. Build the future of your childhood: the future of 1920, of 2010, or the one being imagined right now. Ship it and we ship you hardware."
     />
     <link rel="canonical" href="%SITE_URL%/" />
-    <meta name="theme-color" content="#2e93dd" />
+    <meta name="theme-color" content="#1a6cc4" />
+
+    <!-- Source Sans 3 carries the whole page — one humanist family at several
+         weights, the way this era's interfaces did. Share Tech Mono is reserved
+         for measured quantities: hours, dates, counts, prices. Both are pulled
+         by the @import at the top of src/app.css. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- the mark leads the first viewport, so it must not arrive late -->
+    <link rel="preload" as="image" href="/dolphin.webp" type="image/webp" />
 
     <!-- Link previews. %SITE_URL% is substituted at build time (vite.config.js);
          set SITE_URL when the deploy domain differs from the default. -->
@@ -29,7 +41,7 @@
     <meta property="og:image:height" content="630" />
     <meta
       property="og:image:alt"
-      content="A glossy blue-and-green world floating in a smoked-glass window against a bright sky, beside the words Build the future of your childhood."
+      content="A dolphin breaching over a compass rose against a bright sky, above the words Build the future of your childhood."
     />
     <meta property="og:locale" content="en_US" />
 
@@ -42,10 +54,24 @@
     <meta name="twitter:image" content="%SITE_URL%/og.jpg" />
     <meta
       name="twitter:image:alt"
-      content="A glossy blue-and-green world floating in a smoked-glass window against a bright sky, beside the words Build the future of your childhood."
+      content="A dolphin breaching over a compass rose against a bright sky, above the words Build the future of your childhood."
     />
   </head>
   <body>
+    <!--
+      DIRECTION — glossy, early 2000s.
+
+      THESIS: A bright Aqua/XP-era interface, not a cinematic scene. Light
+      chrome, dark type, and the shine sitting on top.
+      OWN-WORLD: Blue sky with drifting cumulus; white glossy panels with
+      pinstriped title bars; gel lozenge buttons; one green gel for actions.
+      STORY: Any era's future counts; build a real piece of it, log the hours,
+      spend them on hardware. Every path ends at stern.hackclub.com/future/welcome.
+      FIRST VIEWPORT: the mark on its reflection beside a bold headline on open
+      sky, green gel button beneath.
+      FORM: brief-pinned by the user ("glossy and early 2000s"), which beats the
+      roll. Replaces the retired Waterline direction.
+    -->
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
   </body>

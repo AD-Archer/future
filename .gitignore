@@ -4,3 +4,9 @@ dist
 .DS_Store
 *.local
 .vercel
+
+# impeccable working artifacts (config.json and design.json are the real files)
+.impeccable/review
+.impeccable/hook.cache.json
+.impeccable/questions
+.impeccable/mocks

@@ -5,9 +5,7 @@
   // are, and what makes hours count.
   //
   // A definition list, not another row of icon cards — these are the terms of
-  // the thing, and terms belong in a spec plate. The sections either side of
-  // this one already use badges and numbered steps; a third variant of the
-  // same pattern would read as filler.
+  // the thing, and terms belong in a spec plate.
   let { slackUrl = '', hackatimeUrl = '', welcomeUrl = '' } = $props()
 
   const FACTS = [
@@ -36,94 +34,77 @@
   ]
 </script>
 
-<section class="window" id="new-here">
-  <header class="bar sec-bar">
-    <h2>New here?</h2>
-    <span class="sep" aria-hidden="true"></span>
-    <p class="sec-sub">
-      Read this before the shop. It is the whole deal in four lines.
-    </p>
-  </header>
+<section class="col" id="new-here">
+  <div class="window">
+    <header class="titlebar">
+      <h2>New here?</h2>
+      <span class="sep" aria-hidden="true"></span>
+      <p>The whole deal in four lines.</p>
+    </header>
 
-  <div class="pane body">
-    <dl class="facts">
-      {#each FACTS as f}
-        <div class="fact">
-          <dt class="hud">{f.term}</dt>
-          <dd>{f.body}</dd>
-        </div>
-      {/each}
-    </dl>
+    <div class="panel-body">
+      <dl class="facts">
+        {#each FACTS as f}
+          <div class="fact">
+            <dt>{f.term}</dt>
+            <dd>{f.body}</dd>
+          </div>
+        {/each}
+      </dl>
 
-    <p class="tail">
-      Still unsure what to do first?
-      {#if welcomeUrl}
-        <a href={welcomeUrl} data-analytics="CTA: Click" data-analytics-placement="primer-onboarding">Get onboarded</a>{#if slackUrl}, or{/if}
-      {/if}
-      {#if slackUrl}
-        <a href={slackUrl} data-analytics="CTA: Click" data-analytics-placement="primer-slack">ask in the Slack</a>
-      {/if}
-      — somebody there has already built their first one.
-      {#if hackatimeUrl}
-        <a class="quiet" href={hackatimeUrl} data-analytics="CTA: Click" data-analytics-placement="primer-hackatime">What is Hackatime?</a>
-      {/if}
-    </p>
+      <p class="tail">
+        Still unsure what to do first?
+        {#if welcomeUrl}
+          <a href={welcomeUrl} data-analytics="CTA: Click" data-analytics-placement="primer-onboarding">Get onboarded</a>{#if slackUrl}, or{/if}
+        {/if}
+        {#if slackUrl}
+          <a href={slackUrl} data-analytics="CTA: Click" data-analytics-placement="primer-slack">ask in the Slack</a>
+        {/if}
+        — somebody there has already built their first one.
+        {#if hackatimeUrl}
+          <a href={hackatimeUrl} data-analytics="CTA: Click" data-analytics-placement="primer-hackatime">What is Hackatime?</a>
+        {/if}
+      </p>
+    </div>
   </div>
 </section>
 
 <style>
-  .sec-bar {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    padding: 12px 20px;
-    min-height: 52px;
-  }
-  .sec-bar h2 { font-size: 1.5rem; font-weight: 300; white-space: nowrap; }
-  .sec-sub { margin: 0; font-size: 0.98rem; color: var(--ink-2); max-width: 62ch; }
-
-  .body { padding: 6px 26px 22px; }
-
   .facts { margin: 0; }
+
   /* the term column is fixed, so all four statements start on one axis and the
      block reads as a plate of terms rather than four stacked paragraphs */
   .fact {
     display: grid;
-    grid-template-columns: 148px minmax(0, 1fr);
-    gap: 22px;
+    grid-template-columns: 130px minmax(0, 1fr);
+    gap: 18px;
     align-items: baseline;
-    padding: 15px 4px;
+    padding: 12px 0;
   }
-  .fact + .fact { border-top: 1px solid rgba(255, 255, 255, 0.14); }
-  .fact dt { padding-top: 0.24em; font-size: 0.7rem; color: var(--accent); }
-  .fact dd { margin: 0; color: var(--ink-2); max-width: 66ch; text-shadow: var(--etch); }
+  .fact + .fact { border-top: 1px solid var(--panel-line); }
+  dt {
+    font-size: var(--t-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--link);
+  }
+  dd { margin: 0; font-size: var(--t-sm); color: var(--ink-2); max-width: 62ch; }
 
   .tail {
-    margin: 18px 0 0;
-    padding-top: 15px;
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    margin-top: 16px;
+    padding-top: 13px;
+    border-top: 1px solid var(--panel-line);
+    font-size: var(--t-sm);
     color: var(--ink-3);
-    font-size: 0.94rem;
-    max-width: 74ch;
+    max-width: 72ch;
   }
-  .tail a { color: var(--accent); }
+  .tail a { color: var(--link); }
   .tail a:hover { text-decoration: underline; }
-  .tail .quiet { display: inline-block; margin-left: 6px; color: var(--ink-3); }
-  .tail .quiet:hover { color: var(--accent); }
 
-  @media (max-width: 960px) {
-    .sec-bar { flex-wrap: wrap; gap: 10px 16px; }
-    .sec-bar .sep { display: none; }
-  }
-  @media (max-width: 640px) {
-    .body { padding: 4px 16px 18px; }
-    /* the term becomes an eyebrow above its statement; a 148px column would
+  @media (max-width: 600px) {
+    /* the term becomes an eyebrow above its statement; a 130px column would
        leave the text about twelve characters wide on a phone */
-    .fact {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 5px;
-      padding: 13px 2px;
-    }
-    .fact dt { padding-top: 0; }
+    .fact { grid-template-columns: minmax(0, 1fr); gap: 4px; }
   }
 </style>

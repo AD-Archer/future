@@ -52,19 +52,20 @@ export const WORLDS = [
   }
 ]
 
+// `icon` selects a drawn mark in App.svelte: cad | code | build.
 export const TRACKS = [
   {
-    icon: 'tool',
+    icon: 'cad',
     title: 'CAD',
     body: 'Create a 3d model of something you wish existed.'
   },
   {
-    icon: 'seed',
+    icon: 'code',
     title: 'code',
-    body: 'Create a website/app that does something useful that hasn\'t been done before.' 
+    body: 'Create a website/app that does something useful that hasn\'t been done before.'
   },
   {
-    icon: 'signal',
+    icon: 'build',
     title: 'Something Physical',
     body: 'Build something! Something really really cool using whatever hardware you have available.'
   }

@@ -1,0 +1,543 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-16T00:00:00.000Z",
+  "title": "Design System: FUTURE",
+  "extensions": {
+    "colorMeta": {
+      "sky-1": {
+        "role": "neutral",
+        "displayName": "Zenith",
+        "canonical": "#0d4a94",
+        "tonalRamp": [
+          "#03162c",
+          "#052343",
+          "#083561",
+          "#0b4180",
+          "#0f4f99",
+          "#2a7cd0",
+          "#6aaae4",
+          "#b6d9f3"
+        ]
+      },
+      "sky-2": {
+        "role": "neutral",
+        "displayName": "Open Sky",
+        "canonical": "#2f86d4",
+        "tonalRamp": [
+          "#0a2038",
+          "#0f3457",
+          "#164c7e",
+          "#1f66a6",
+          "#2c7dc4",
+          "#3d93da",
+          "#7fb9e9",
+          "#c2ddf6"
+        ]
+      },
+      "sky-3": {
+        "role": "neutral",
+        "displayName": "High Haze",
+        "canonical": "#7cc0e6",
+        "tonalRamp": [
+          "#12303f",
+          "#1a465c",
+          "#256380",
+          "#3384a6",
+          "#5aa3c6",
+          "#7dbcdd",
+          "#9ed3f2",
+          "#d3ecfa"
+        ]
+      },
+      "sky-4": {
+        "role": "neutral",
+        "displayName": "Horizon",
+        "canonical": "#a3d5ef",
+        "tonalRamp": [
+          "#1b3540",
+          "#264a5b",
+          "#33667c",
+          "#4488a3",
+          "#63a6bf",
+          "#94c8dd",
+          "#d5ecfa",
+          "#eef8fe"
+        ]
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Panel White",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#1b2c3a",
+          "#2c4356",
+          "#3f5d75",
+          "#587b95",
+          "#7c9db3",
+          "#a9c4d5",
+          "#dceaf3",
+          "#ffffff"
+        ]
+      },
+      "panel-edge": {
+        "role": "neutral",
+        "displayName": "Panel Edge",
+        "canonical": "#9cc3de",
+        "tonalRamp": [
+          "#16303f",
+          "#1f465c",
+          "#2c6180",
+          "#3d80a6",
+          "#5c9fc4",
+          "#87bcda",
+          "#b4d2e8",
+          "#dfeef7"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#16324a",
+        "tonalRamp": [
+          "#070f17",
+          "#0c1c29",
+          "#16324a",
+          "#22496b",
+          "#31658f",
+          "#4d8ab8",
+          "#82b1d5",
+          "#c2d9ea"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Ink Secondary",
+        "canonical": "#47657e",
+        "tonalRamp": [
+          "#0f1720",
+          "#1a2833",
+          "#283c4c",
+          "#375368",
+          "#47657e",
+          "#6b8aa3",
+          "#9ab2c5",
+          "#cbd9e4"
+        ]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Ink Tertiary",
+        "canonical": "#52718a",
+        "tonalRamp": [
+          "#111a21",
+          "#1d2c37",
+          "#2c4353",
+          "#3d5c72",
+          "#52718a",
+          "#7794a9",
+          "#a3bac9",
+          "#d2dfe8"
+        ]
+      },
+      "blue-hi": {
+        "role": "primary",
+        "displayName": "Gel Blue Highlight",
+        "canonical": "#86d3ff",
+        "tonalRamp": [
+          "#0a2c3f",
+          "#0f435e",
+          "#155d82",
+          "#1d7cab",
+          "#3a9dcd",
+          "#5fb8e4",
+          "#86d3ff",
+          "#c7ebff"
+        ]
+      },
+      "blue-lo": {
+        "role": "primary",
+        "displayName": "Gel Blue",
+        "canonical": "#1476c8",
+        "tonalRamp": [
+          "#04182a",
+          "#062742",
+          "#0a3a63",
+          "#0e5088",
+          "#1476c8",
+          "#3d97e0",
+          "#79bcee",
+          "#c0defa"
+        ]
+      },
+      "green-hi": {
+        "role": "primary",
+        "displayName": "Gel Green Highlight",
+        "canonical": "#bcec72",
+        "tonalRamp": [
+          "#2c3d10",
+          "#405818",
+          "#597822",
+          "#749b2d",
+          "#93bd42",
+          "#a8d55a",
+          "#bcec72",
+          "#dcf6ad"
+        ]
+      },
+      "green-lo": {
+        "role": "primary",
+        "displayName": "Gel Green",
+        "canonical": "#3a8418",
+        "tonalRamp": [
+          "#0c1f06",
+          "#14300b",
+          "#1e4711",
+          "#295f16",
+          "#3a8418",
+          "#4fae21",
+          "#71d244",
+          "#aee88a"
+        ]
+      },
+      "ink-on-gel": {
+        "role": "primary",
+        "displayName": "Gel Label",
+        "canonical": "#0e2c46",
+        "tonalRamp": [
+          "#050f18",
+          "#091d2c",
+          "#0e2c46",
+          "#154366",
+          "#1e5c8c",
+          "#3080bd",
+          "#68abd8",
+          "#b1d3ec"
+        ]
+      },
+      "ink-on-gel-green": {
+        "role": "primary",
+        "displayName": "Gel Label Green",
+        "canonical": "#12360a",
+        "tonalRamp": [
+          "#050f03",
+          "#091f06",
+          "#12360a",
+          "#1b5010",
+          "#276f17",
+          "#379a20",
+          "#57c93f",
+          "#9be386"
+        ]
+      },
+      "link": {
+        "role": "secondary",
+        "displayName": "Link",
+        "canonical": "#1268b4",
+        "tonalRamp": [
+          "#041526",
+          "#06223c",
+          "#0a355c",
+          "#0d4b81",
+          "#1268b4",
+          "#3a8ed6",
+          "#78b6e9",
+          "#c0dcf6"
+        ]
+      },
+      "win-red": {
+        "role": "tertiary",
+        "displayName": "Window Cap Red",
+        "canonical": "#e0483e",
+        "tonalRamp": [
+          "#1b0a08",
+          "#33130f",
+          "#4d1d17",
+          "#6b2820",
+          "#8c352a",
+          "#b03f33",
+          "#e0483e",
+          "#f4a49d"
+        ]
+      },
+      "win-amber": {
+        "role": "tertiary",
+        "displayName": "Window Cap Amber",
+        "canonical": "#e0a112",
+        "tonalRamp": [
+          "#2b1f04",
+          "#412f06",
+          "#5c430a",
+          "#7a5a0d",
+          "#9c7310",
+          "#c08f12",
+          "#e0a112",
+          "#f6d78a"
+        ]
+      },
+      "win-green": {
+        "role": "tertiary",
+        "displayName": "Window Cap Green",
+        "canonical": "#3ba337",
+        "tonalRamp": [
+          "#0c1f0b",
+          "#153311",
+          "#1f4a19",
+          "#2b6421",
+          "#357f2a",
+          "#3ba337",
+          "#5fc95a",
+          "#a2e39e"
+        ]
+      },
+      "win-red-hi": {
+        "role": "tertiary",
+        "displayName": "Window Cap Red Gloss",
+        "canonical": "#ffa39c",
+        "tonalRamp": [
+          "#1b0a08",
+          "#33130f",
+          "#4d1d17",
+          "#6b2820",
+          "#8c352a",
+          "#b03f33",
+          "#e0483e",
+          "#f4a49d"
+        ]
+      },
+      "win-amber-hi": {
+        "role": "tertiary",
+        "displayName": "Window Cap Amber Gloss",
+        "canonical": "#ffdc8a",
+        "tonalRamp": [
+          "#2b1f04",
+          "#412f06",
+          "#5c430a",
+          "#7a5a0d",
+          "#9c7310",
+          "#c08f12",
+          "#e0a112",
+          "#f6d78a"
+        ]
+      },
+      "win-green-hi": {
+        "role": "tertiary",
+        "displayName": "Window Cap Green Gloss",
+        "canonical": "#93e08f",
+        "tonalRamp": [
+          "#0c1f0b",
+          "#153311",
+          "#1f4a19",
+          "#2b6421",
+          "#357f2a",
+          "#3ba337",
+          "#5fc95a",
+          "#a2e39e"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Hero",
+        "purpose": "The headline and the closing call. The only display-scale type on the page."
+      },
+      "headline": {
+        "displayName": "H2",
+        "purpose": "Status pages and section heads."
+      },
+      "title": {
+        "displayName": "H3",
+        "purpose": "Title-bar headings and card names."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "All running copy, 17px root and 16px below 520px."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Definition terms and rule tags, uppercase."
+      },
+      "data": {
+        "displayName": "Data",
+        "purpose": "Measured quantities only: hours, dates, counts, prices, the ticker."
+      }
+    },
+    "shadows": [
+      {
+        "name": "drop",
+        "value": "0 1px 2px rgba(16,58,96,.16), 0 8px 22px rgba(16,58,96,.16)",
+        "purpose": "Panels and windows. One close downward shadow, never stacked."
+      },
+      {
+        "name": "gel",
+        "value": "inset 0 1px 0 rgba(255,255,255,.9), inset 0 -1px 2px rgba(0,0,0,.2), 0 1px 2px rgba(10,40,70,.3), 0 5px 12px rgba(10,40,70,.2)",
+        "purpose": "Every raised bead: buttons, chips, plinths, numerals, tags."
+      },
+      {
+        "name": "gel-pressed",
+        "value": "inset 0 2px 4px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.4)",
+        "purpose": ":active, paired with a 1px nudge down."
+      },
+      {
+        "name": "well",
+        "value": "inset 0 1px 0 #fff",
+        "purpose": "Cards inside a panel. A hairline border does the separating; no second drop shadow."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Every transition on the page."
+      },
+      {
+        "name": "reveal",
+        "value": "opacity .5s, transform .5s translateY(14px)",
+        "purpose": "One quiet rise as a section enters the viewport."
+      },
+      {
+        "name": "drift",
+        "value": "linear, 150-240s",
+        "purpose": "Clouds crossing the sky layer."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "lg",
+        "value": "860px"
+      },
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "xs",
+        "value": "520px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The green gel. The one action colour, with a dark label because the bead is brightest where the label sits.",
+      "html": "<a class=\"ds-gel ds-green\" href=\"#\">Get onboarded</a>",
+      "css": ".ds-gel { display: inline-flex; align-items: center; justify-content: center; padding: 13px 30px; border-radius: 999px; font-family: 'Source Sans 3', sans-serif; font-size: 1rem; font-weight: 700; text-decoration: none; text-shadow: 0 1px 0 rgba(255,255,255,.5); box-shadow: inset 0 1px 0 rgba(255,255,255,.9), inset 0 -1px 2px rgba(0,0,0,.2), 0 1px 2px rgba(10,40,70,.3), 0 5px 12px rgba(10,40,70,.2); transition: filter .18s cubic-bezier(.16,1,.3,1), transform .18s cubic-bezier(.16,1,.3,1); } .ds-green { border: 1px solid #275f10; color: #12360a; background-image: linear-gradient(180deg, rgba(255,255,255,.82) 0%, rgba(255,255,255,.34) 47.9%, rgba(255,255,255,.05) 48%, rgba(255,255,255,.26) 100%), linear-gradient(180deg, #bcec72 0%, #3a8418 100%); } .ds-gel:hover { filter: brightness(1.07) saturate(1.06); } .ds-gel:active { transform: translateY(1px); box-shadow: inset 0 2px 4px rgba(0,0,0,.28); } .ds-gel:focus-visible { outline: 2px solid #1476c8; outline-offset: 2px; }"
+    },
+    {
+      "name": "Blue Button",
+      "kind": "button",
+      "refersTo": "button-blue",
+      "description": "The blue gel, for every raised thing that is not the primary action.",
+      "html": "<a class=\"ds-gel ds-blue\" href=\"#\">Join the Slack</a>",
+      "css": ".ds-gel { display: inline-flex; align-items: center; justify-content: center; padding: 13px 30px; border-radius: 999px; font-family: 'Source Sans 3', sans-serif; font-size: 1rem; font-weight: 700; text-decoration: none; text-shadow: 0 1px 0 rgba(255,255,255,.5); box-shadow: inset 0 1px 0 rgba(255,255,255,.9), inset 0 -1px 2px rgba(0,0,0,.2), 0 1px 2px rgba(10,40,70,.3), 0 5px 12px rgba(10,40,70,.2); } .ds-blue { border: 1px solid #0e5794; color: #0e2c46; background-image: linear-gradient(180deg, rgba(255,255,255,.82) 0%, rgba(255,255,255,.34) 47.9%, rgba(255,255,255,.05) 48%, rgba(255,255,255,.26) 100%), linear-gradient(180deg, #86d3ff 0%, #1476c8 100%); } .ds-blue:hover { filter: brightness(1.07); }"
+    },
+    {
+      "name": "Window",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "A pinstriped title bar welded to a white body. Every content section is one.",
+      "html": "<div class=\"ds-win\"><header class=\"ds-bar\"><h2>The shop</h2><span class=\"ds-sep\"></span><p>Priced in tracked hours, cheapest first.</p></header><div class=\"ds-body\">Content goes here.</div></div>",
+      "css": ".ds-win { border-radius: 14px; border: 1px solid #b4d2e8; overflow: hidden; background: #fff; box-shadow: 0 1px 2px rgba(16,58,96,.16), 0 8px 22px rgba(16,58,96,.16); font-family: 'Source Sans 3', sans-serif; } .ds-bar { display: flex; align-items: center; gap: 14px; padding: 11px 18px; min-height: 48px; border-bottom: 1px solid #a5c7e0; background-image: repeating-linear-gradient(180deg, rgba(255,255,255,.55) 0 1px, rgba(255,255,255,0) 1px 3px), linear-gradient(180deg, #f2f9fe 0%, #d2e7f7 47.9%, #c0dcf1 48%, #e3f2fc 100%); box-shadow: inset 0 1px 0 #fff; } .ds-bar h2 { margin: 0; font-size: 1.2rem; font-weight: 700; color: #16324a; white-space: nowrap; text-shadow: 0 1px 0 #fff; } .ds-bar p { margin: 0; font-size: .92rem; color: #47657e; text-shadow: 0 1px 0 #fff; } .ds-sep { width: 2px; align-self: stretch; margin-block: 4px; border-radius: 2px; background: linear-gradient(180deg, #a8c6dd, #cfe3f2); box-shadow: 1px 0 0 rgba(255,255,255,.85); } .ds-body { padding: 24px; color: #16324a; background: linear-gradient(180deg, #fff 0%, #f1f8fd 100%); }"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "A small gel toggle. Unselected is pale chrome; selected rides the green gel.",
+      "html": "<div style=\"display:flex;gap:7px\"><button class=\"ds-chip ds-chip-on\">everything</button><button class=\"ds-chip\">under 25 hrs<span class=\"ds-n\">16</span></button></div>",
+      "css": ".ds-chip { padding: 6px 14px; border: 1px solid #a9c8de; border-radius: 999px; font-family: 'Source Sans 3', sans-serif; font-size: .84rem; font-weight: 600; cursor: pointer; color: #47657e; text-shadow: 0 1px 0 #fff; background-image: linear-gradient(180deg, #fff 0%, #eaf3fa 47.9%, #dceaf5 48%, #f4fafd 100%); box-shadow: inset 0 1px 0 #fff, 0 1px 1px rgba(16,58,96,.12); } .ds-chip-on { color: #12360a; border-color: #275f10; text-shadow: 0 1px 0 rgba(255,255,255,.45); background-image: linear-gradient(180deg, rgba(255,255,255,.8) 0%, rgba(255,255,255,.3) 47.9%, rgba(255,255,255,.05) 48%, rgba(255,255,255,.24) 100%), linear-gradient(180deg, #bcec72 0%, #3a8418 100%); } .ds-n { margin-left: 6px; font-family: 'Share Tech Mono', monospace; opacity: .7; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Icon Bead",
+      "kind": "custom",
+      "refersTo": "button-blue",
+      "description": "The round gel plinth: track icons, step numerals, disclosure toggles, price tags. Icons use currentColor so they follow the bead's label.",
+      "html": "<div style=\"display:flex;gap:14px;align-items:center\"><span class=\"ds-bead\">01</span><span class=\"ds-bead ds-bead-lg\"><svg viewBox=\"0 0 32 32\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M16 4 27 10.2v12.6L16 29 5 22.8V10.2Z\"/><path d=\"M5 10.2 16 16.5l11-6.3M16 16.5V29\"/></svg></span></div>",
+      "css": ".ds-bead { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid #0e5794; color: #0e2c46; font-family: 'Share Tech Mono', monospace; font-size: .92rem; text-shadow: 0 1px 0 rgba(255,255,255,.5); background-image: linear-gradient(180deg, rgba(255,255,255,.82) 0%, rgba(255,255,255,.34) 47.9%, rgba(255,255,255,.05) 48%, rgba(255,255,255,.26) 100%), linear-gradient(180deg, #86d3ff 0%, #1476c8 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 1px 2px rgba(10,40,70,.3), 0 5px 12px rgba(10,40,70,.2); } .ds-bead-lg { width: 50px; height: 50px; } .ds-bead-lg svg { width: 26px; height: 26px; }"
+    },
+    {
+      "name": "Mark with reflection",
+      "kind": "custom",
+      "refersTo": "panel",
+      "description": "The dolphin standing on its own mirrored fade. Chromium and WebKit render the reflection; elsewhere the mark simply stands on its own.",
+      "html": "<div class=\"ds-mark\"><img src=\"/dolphin.webp\" alt=\"\" width=\"500\" height=\"500\"></div>",
+      "css": ".ds-mark { width: 220px; } .ds-mark img { width: 100%; height: auto; filter: drop-shadow(0 10px 14px rgba(12,52,90,.32)); -webkit-box-reflect: below 2px linear-gradient(to bottom, rgba(0,0,0,0) 58%, rgba(0,0,0,.22) 100%); }"
+    },
+    {
+      "name": "Splash header",
+      "kind": "custom",
+      "refersTo": "panel",
+      "description": "The page header as the application's own splash window: decorative caps, the mark on its reflection, the headline, one primary action, and a status bar reporting the terms.",
+      "html": "<div class=\"ds-splash\"><header class=\"ds-sbar\"><span class=\"ds-caps\"><i></i><i></i><i></i></span><b>FUTURE</b><span class=\"ds-sep\"></span><span class=\"ds-strap\">You Ship, We Ship</span></header><div class=\"ds-sbody\"><h1>Build the future<br>of your childhood.</h1><a class=\"ds-cta\" href=\"#\">Get onboarded</a></div><footer class=\"ds-status\"><span>Free to enter \u00b7 ages 13 to 18 \u00b7 anywhere on earth</span></footer></div>",
+      "css": ".ds-splash { border-radius: 14px; border: 1px solid #9cc3de; overflow: hidden; background: #fff; box-shadow: 0 1px 2px rgba(16,58,96,.16), 0 8px 22px rgba(16,58,96,.16); font-family: 'Source Sans 3', sans-serif; } .ds-sbar { display: flex; align-items: center; gap: 14px; padding: 11px 18px; min-height: 48px; border-bottom: 1px solid #8fb9d6; background-image: repeating-linear-gradient(180deg, rgba(255,255,255,.55) 0 1px, rgba(255,255,255,0) 1px 3px), linear-gradient(180deg, #f2f9fe 0%, #c9e2f6 47.9%, #b2d5ee 48%, #e3f2fc 100%); box-shadow: inset 0 1px 0 #fff; } .ds-caps { display: flex; gap: 6px; } .ds-caps i { width: 11px; height: 11px; border-radius: 50%; box-shadow: inset 0 1px 0 rgba(255,255,255,.8), inset 0 -1px 1px rgba(0,0,0,.22), 0 1px 1px rgba(16,58,96,.24); } .ds-caps i:nth-child(1) { background: radial-gradient(circle at 34% 26%, #ffa39c, #e0483e); } .ds-caps i:nth-child(2) { background: radial-gradient(circle at 34% 26%, #ffdc8a, #e0a112); } .ds-caps i:nth-child(3) { background: radial-gradient(circle at 34% 26%, #93e08f, #3ba337); } .ds-sbar b { font-size: .92rem; letter-spacing: .28em; color: #16324a; } .ds-sep { width: 2px; align-self: stretch; margin-block: 4px; border-radius: 999px; background: linear-gradient(180deg, #8fb9d6, #d3e6f3); } .ds-strap { font-size: .92rem; color: #47657e; } .ds-sbody { text-align: center; padding: 48px 32px 40px; } .ds-sbody h1 { margin: 0 0 24px; font-size: 3rem; font-weight: 700; letter-spacing: -.025em; color: #16324a; } .ds-cta { display: inline-flex; padding: 13px 30px; border: 1px solid #275f10; border-radius: 999px; font-weight: 700; text-decoration: none; color: #12360a; text-shadow: 0 1px 0 rgba(255,255,255,.5); background-image: linear-gradient(180deg, rgba(255,255,255,.82) 0%, rgba(255,255,255,.34) 47.9%, rgba(255,255,255,.05) 48%, rgba(255,255,255,.26) 100%), linear-gradient(180deg, #bcec72 0%, #3a8418 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 5px 12px rgba(10,40,70,.2); } .ds-status { padding: 8px 18px; border-top: 1px solid #9cc3de; background-image: linear-gradient(180deg, #f1f8fd, #eef6fc); font-size: .84rem; color: #52718a; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Aqua Desktop",
+    "overview": "FUTURE is an early-2000s interface: a bright sky wallpaper with white glossy windows sitting on it, pinstriped title bars, gel lozenge buttons, and dark text throughout. The reference points are Mac OS X Aqua, Windows XP Luna, and the Web 2.0 badge \u2014 not a cinematic scene.\n\nThe single most important fact about this era is that it is a LIGHT aesthetic. Aqua, Luna and Web 2.0 were pale chrome with dark type, and the shine sat on top of them. Dark panels with white type is a modern convention. An earlier version of this page was a dark, canvas-driven underwater environment, and it read as contemporary and cinematic no matter how much period texture went onto it; going light fixed in one change what four rounds of detail could not.\n\nIt is also deliberately simple. There is no canvas, no scroll-driven effect, no per-section environment. The sky is a gradient with drifting CSS clouds, the sections are windows, and the shine is one repeated recipe.",
+    "keyCharacteristics": [
+      "Light chrome, dark type, gloss on top.",
+      "One gloss recipe (.gel) for every raised thing on the page.",
+      "Windows with pinstriped title bars for all content; open sky only for the hero.",
+      "One green gel for actions; blue gel for everything else raised.",
+      "Reflections under objects \u2014 the most 2005 device there is."
+    ],
+    "rules": [
+      {
+        "name": "The Light Ground Rule",
+        "body": "This era is light. Panels are white, type is dark, and the gloss sits on top. A dark panel with white type is not this aesthetic, however much gloss is applied to it.",
+        "section": "colors"
+      },
+      {
+        "name": "The Hero Owns Its Ground Rule",
+        "body": "White type appears only in the hero, and the hero paints the deep blue it needs rather than relying on the page sky. Percentage gradient stops on a document whose length changes are a trap: shortening one section slid the hero out of its deep band and took the headline from 7:1 to 4.6:1. Page-sky stops are in pixels; the hero's ground is its own element.",
+        "section": "colors"
+      },
+      {
+        "name": "The Dark Label Rule",
+        "body": "Gel labels are dark, not white. A gel is a light lozenge and its label sits mid-gradient where the bead is brightest; white measured 2.5:1 there. Aqua set dark labels on light gel for the same reason.",
+        "section": "colors"
+      },
+      {
+        "name": "The Eight-Step Rule",
+        "body": "Every size in the source is a --t-* token. A literal font-size is drift by definition.",
+        "section": "typography"
+      },
+      {
+        "name": "The Scoped Selector Rule",
+        "body": "Never style a bare element inside a component. Svelte's scoping class gives p the same specificity as a global .foo p, so the component wins on source order and silently overrides the system. Scope to a class.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Measure Rule",
+        "body": "Every window sits on the same .col measure and lines up on the same two edges. Reading width is capped inside the panel with --measure, never by narrowing the panel. Two alternating column widths made the page's edges jump in and out five times on the way down.",
+        "section": "layout"
+      },
+      {
+        "name": "The Splash Rule",
+        "body": "The page header is the application's own splash window, not a landing-page hero band. Window caps are chrome rather than controls: aria-hidden, no hover, no pointer cursor. The status bar reports the terms rather than repeating the brand line.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "Do build every raised thing from .gel. It is the whole look.",
+      "Do keep type dark and grounds light.",
+      "Do put content sections in windows.",
+      "Do use a --t-* token for every font size.",
+      "Do scope component selectors to a class.",
+      "Do give icons currentColor so they follow their bead's label.",
+      "Do cap reading width with --measure inside a panel, never by narrowing the panel."
+    ],
+    "donts": [
+      "Don't set white type on the sky. Nothing does any more; the header is a window.",
+      "Don't introduce a second column width. One measure for the whole page.",
+      "Don't size the sky's stops in percentages. The document's length changes.",
+      "Don't wrap three peer items in three identical cards. Use the control-panel row.",
+      "Don't let a plate size itself from its image; place the image inside a fixed box.",
+      "Don't use white labels on gel. They measure ~2.5:1.",
+      "Don't stack a drop shadow on a surface that already sits inside one.",
+      "Don't reach for canvas, scroll effects or per-section environments. The page is a gradient, some clouds, and windows \u2014 keeping it that way is a requirement, not an omission."
+    ]
+  }
+}
